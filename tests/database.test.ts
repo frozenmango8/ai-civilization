@@ -275,3 +275,47 @@ test("HTTP APIs verify authentication, methods, idempotency, and two visitors se
     await new Promise<void>((r) => server.close(() => r()));
   }
 });
+
+test("project changes are shared and atomic, preserve the AI ledger, and make no provider calls", async () => {
+  let calls = 0;
+  const s = new Simulation(db, async (...args) => {
+    calls++;
+    return fakeAI!(...args);
+  });
+  await s.control({ action: "mode", value: "ai" });
+  await s.tick("before-project");
+  const before = await s.snapshot();
+  await s.control({ action: "project", value: "farm" });
+  const after = await new Simulation(db).snapshot();
+  assert.equal(after.world.tick, before.world.tick);
+  assert.equal(after.world.gold, before.world.gold - 80);
+  assert.equal(after.world.wood, before.world.wood - 30);
+  assert.deepEqual(after.usage, before.usage);
+  assert.equal(calls, 2);
+  await assert.rejects(
+    () => s.control({ action: "project", value: "farm" }),
+    (e: any) => e.code === "PROJECT_UNAVAILABLE",
+  );
+  assert.equal((await s.snapshot()).world.gold, after.world.gold);
+});
+test("mixed AI outcomes visibly identify fallback and retain only safe failure information", async () => {
+  const s = new Simulation(db, async (p, w, prompt) => {
+    if (p === "sonnet") throw new Error("PROVIDER_HTTP_401");
+    return fakeAI!(p, w, prompt);
+  });
+  await s.control({ action: "mode", value: "ai" });
+  await s.tick("mixed");
+  const { world, usage } = await s.snapshot();
+  assert.equal(world.lastTick?.providers.terra?.status, "ai");
+  assert.equal(world.lastTick?.providers.sonnet?.status, "fallback");
+  assert.ok(world.lastTick?.providers.sonnet?.detail.includes("401"));
+  for (const d of world.lastTick!.decisions)
+    assert.equal(
+      d.source,
+      world.citizens.find((c) => c.id === d.citizenId)?.provider === "terra"
+        ? "ai"
+        : "fallback",
+    );
+  assert.ok(usage.find((u) => u.provider === "terra")!.actualTokens > 0);
+  assert.equal(usage.find((u) => u.provider === "sonnet")!.errors, 1);
+});

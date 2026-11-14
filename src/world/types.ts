@@ -34,6 +34,7 @@ export interface Citizen {
   position: Point;
   previousPosition: Point;
   message: string;
+  playerDirected?: boolean;
 }
 export interface Building {
   id: string;
@@ -55,11 +56,42 @@ export interface TownEvent {
   tick: number;
   type: "life" | "election" | "world" | "system";
   text: string;
+  citizenId?: string;
+  relatedCitizenId?: string;
 }
 export interface Election {
   day: number;
   winner: string;
   votes: Record<string, number>;
+}
+export interface DecisionOutcome {
+  citizenId: string;
+  action: Action;
+  summary: string;
+  message?: string;
+  contribution?: number;
+  source: "ai" | "demo" | "fallback";
+}
+export interface TickReport {
+  tick: number;
+  food: number;
+  gold: number;
+  wood: number;
+  construction: number;
+  happiness: number;
+  decisions: DecisionOutcome[];
+  providers: Partial<
+    Record<Provider, { status: "ai" | "demo" | "fallback"; detail: string }>
+  >;
+}
+export interface TownChallenge {
+  kind: "repair" | "harvest" | "unity";
+  title: string;
+  description: string;
+  progress: number;
+  target: number;
+  deadline: number;
+  status: "active" | "won" | "lost";
 }
 export interface World {
   version: 1;
@@ -80,6 +112,14 @@ export interface World {
   events: TownEvent[];
   elections: Election[];
   candidates: string[];
+  lastTick?: TickReport;
+  challenge?: TownChallenge;
+  upgrades?: string[];
+  lastFestivalTick?: number;
+  celebrationTick?: number;
+  electionRequested?: boolean;
+  lastElectionRequestTick?: number;
+  campaignPromises?: Record<string, string>;
 }
 export interface Decision {
   citizenId: string;

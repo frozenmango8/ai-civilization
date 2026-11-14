@@ -1,3 +1,4 @@
+import { TownProgress, StoryDock, DecisionOrigin } from "./components/Stories";
 import {
   Component,
   lazy,
@@ -87,7 +88,7 @@ function ProviderBadge({ provider }: { provider: Provider }) {
   return (
     <span className={`provider-badge ${provider}`}>
       <span className={`dot ${provider}`} />
-      {provider === "terra" ? "Terra" : "Sonnet"}
+      {provider === "terra" ? "Sol" : "Sonnet"}
     </span>
   );
 }
@@ -159,6 +160,7 @@ function CitizenPanel() {
             <Focus size={15} />
             {following === c.id ? "Stop following" : "Follow citizen"}
           </button>
+          <DecisionOrigin id={c.id} />
           <h4>Connections</h4>
           {Object.entries(c.relationships).length ? (
             Object.entries(c.relationships)
@@ -354,9 +356,32 @@ function Settings({ close }: { close: () => void }) {
                   <br />
                   {status?.issue ??
                     (storage === "postgres"
-                      ? "Ready"
+                      ? "Configured · not an access check"
                       : "Available after database setup")}
                 </p>
+                <p className="actual-usage">
+                  {pretty(usage?.actualTokens ?? 0)} actual tokens · $
+                  {((usage?.actualMicros ?? 0) / 1e6).toFixed(4)} settled ·{" "}
+                  {usage?.errors ?? 0} failed calls
+                </p>
+                {world.lastTick?.providers[provider] && (
+                  <p
+                    className={
+                      world.lastTick.providers[provider]!.status === "fallback"
+                        ? "provider-failure"
+                        : ""
+                    }
+                  >
+                    Last tick:{" "}
+                    {world.lastTick.providers[provider]!.status === "ai"
+                      ? "AI decisions used"
+                      : world.lastTick.providers[provider]!.status ===
+                          "fallback"
+                        ? "Fallback used"
+                        : "Demo"}{" "}
+                    · {world.lastTick.providers[provider]!.detail}
+                  </p>
+                )}
               </div>
             );
           })}
@@ -501,27 +526,8 @@ export default function App() {
             </Suspense>
           </SceneBoundary>
         </div>
-        <div className="town-heading">
-          <div className="chapter">
-            <span />A LITTLE EXPERIMENT IN LIVING
-          </div>
-          <h1>
-            Small town.
-            <br />
-            <em>Endless possibilities.</em>
-          </h1>
-          <p>
-            Twenty minds, one shared tomorrow.
-            <br />
-            Pull up a chair. See what happens.
-          </p>
-          <div className="world-label">
-            <span className="status-pulse" />
-            {world.mode === "demo"
-              ? "A free, living simulation"
-              : "Two AI minds. One civilization."}
-          </div>
-        </div>
+        <TownProgress />
+        <StoryDock />
         <div className="date-pill panel">
           <Sun size={22} />
           <div>
@@ -687,7 +693,7 @@ export default function App() {
                     {t === "all"
                       ? "All stories"
                       : t === "terra"
-                        ? "Terra"
+                        ? "Sol"
                         : "Sonnet"}
                   </button>
                 ))}
@@ -704,7 +710,18 @@ export default function App() {
                   )
                   .slice(0, 4)
                   .map((e) => (
-                    <div className="event-item" key={e.id}>
+                    <button
+                      className="event-item"
+                      key={e.id}
+                      disabled={!e.citizenId}
+                      title={e.citizenId ? "Watch this story" : undefined}
+                      onClick={() => {
+                        if (e.citizenId) {
+                          select(e.citizenId);
+                          useTown.getState().follow(e.citizenId);
+                        }
+                      }}
+                    >
                       <div className={`event-symbol ${e.type}`}>
                         {e.type === "election" ? (
                           <Vote size={14} />
@@ -724,7 +741,7 @@ export default function App() {
                             : `${world.tick - e.tick} tick${world.tick - e.tick === 1 ? "" : "s"} ago`}
                         </small>
                       </div>
-                    </div>
+                    </button>
                   ))}
               </div>
               <div className="feed-footer">

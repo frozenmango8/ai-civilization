@@ -1,3 +1,4 @@
+import { applyProject } from "./world/projects";
 import { create } from "zustand";
 import type { Snapshot, World } from "./world/types";
 import { advanceWorld, createWorld } from "./world/engine";
@@ -106,7 +107,8 @@ export const useTown = create<Store>((set, get) => ({
         });
         set({ snapshot, world: snapshot.world, error: null });
       } else {
-        const world = structuredClone(get().world);
+        let world = structuredClone(get().world);
+        if (action === "project") world = applyProject(world, value);
         if (action === "play") world.paused = false;
         if (action === "pause") world.paused = true;
         if (action === "speed") world.speed = Number(value);

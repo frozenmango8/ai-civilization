@@ -1,4 +1,14 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  createContext,
+  useContext,
+  type RefObject,
+  type ComponentProps,
+} from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Html, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -6,6 +16,15 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { useTown } from "../store";
 import { buildings, pointAlong, roadPath } from "../world/map";
 import type { Building, Citizen, Point } from "../world/types";
+// Keep scene labels in a stable dedicated portal rather than the event connector,
+// which changes during canvas startup and can race React DOM cleanup.
+const LabelsPortal = createContext<RefObject<HTMLElement> | undefined>(
+  undefined,
+);
+function WorldHtml(props: ComponentProps<typeof Html>) {
+  const portal = useContext(LabelsPortal);
+  return <Html {...props} portal={portal} />;
+}
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const boxMaterials = new Map<string, THREE.MeshStandardMaterial>();
 function boxMaterial(color: string) {
@@ -166,9 +185,29 @@ function Hall() {
   );
 }
 function Farm() {
+  const expanded = useTown((s) => s.world.upgrades?.includes("farm"));
   const tick = useTown((s) => s.world.tick);
   return (
     <group>
+      {expanded && (
+        <group position={[0, 0, -6]}>
+          <Box p={[0, 0.15, 0]} s={[5, 0.3, 2.5]} c="#c7b894" />
+          <Box p={[0, 1.1, 0]} s={[5, 1.8, 2.5]} c="#b9d2b5" />
+          {[-2, 0, 2].map((x) => (
+            <Box key={x} p={[x, 1.1, 1.28]} s={[0.08, 1.8, 0.06]} c="#eee6c8" />
+          ))}
+          <WorldHtml
+            position={[0, 2.7, 0]}
+            center
+            distanceFactor={55}
+            zIndexRange={[20, 0]}
+          >
+            <span className="farm-upgrade">
+              Expanded farm · +6 food per farmer
+            </span>
+          </WorldHtml>
+        </group>
+      )}
       <Box p={[0, 0.06, 0]} s={[9, 0.18, 8]} c="#80694c" />
       {Array.from({ length: 8 }, (_, i) => (
         <group key={i}>
@@ -276,6 +315,28 @@ function Fountain() {
 }
 function Construction() {
   const progress = useTown((s) => s.world.construction);
+  if (progress >= 100)
+    return (
+      <group scale={[1.6, 1.2, 1.35]}>
+        <Cottage
+          building={{
+            id: "home-1",
+            name: "Town Library",
+            kind: "home",
+            position: [0, 0],
+            color: "#e6d8b6",
+          }}
+        />
+        <WorldHtml
+          position={[0, 4.9, 0]}
+          center
+          distanceFactor={45}
+          zIndexRange={[20, 0]}
+        >
+          <span className="farm-upgrade">Town library · open to everyone</span>
+        </WorldHtml>
+      </group>
+    );
   return (
     <group>
       <Box p={[0, 0.1, 0]} s={[6, 0.2, 5]} c="#c3b69a" />
@@ -359,7 +420,13 @@ function TownBuilding({ building }: { building: Building }) {
     </group>
   );
 }
-function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
+function CitizenAvatar({
+  citizen: c,
+  wave,
+}: {
+  citizen: Citizen;
+  wave: number;
+}) {
   const group = useRef<THREE.Group>(null),
     left = useRef<THREE.Group>(null),
     right = useRef<THREE.Group>(null),
@@ -374,6 +441,44 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
     [c.previousPosition, c.position],
   );
   const [hover, setHover] = useState(false);
+  const target = useTown(
+    (s) => s.world.citizens.find((p) => p.id === c.target)?.name,
+  );
+  const repair = useTown(
+    (s) =>
+      s.world.challenge?.status === "active" &&
+      s.world.challenge.kind === "repair",
+  );
+  const report = useTown((s) =>
+    s.world.lastTick?.decisions.find((d) => d.citizenId === c.id),
+  );
+  const active = Number(c.id.split("-")[1]) % 6 === wave % 6;
+  const activity =
+    c.action === "farm"
+      ? report?.summary.match(/harvested (\d+) food/)?.[1] + " food harvested"
+      : c.action === "build"
+        ? repair
+          ? "Repairing the market"
+          : "Building the library"
+        : c.action === "socialize"
+          ? `Chatting${target ? " with " + target : ""}`
+          : c.action === "alliance"
+            ? `Allying${target ? " with " + target : ""}`
+            : c.action === "help"
+              ? `Helping${target ? " " + target : ""}`
+              : c.action === "steal"
+                ? "Making trouble"
+                : c.action === "campaign"
+                  ? "Vote for me!"
+                  : c.action === "protest"
+                    ? "We deserve better!"
+                    : c.action === "rest"
+                      ? "A little rest…"
+                      : c.action === "trade"
+                        ? "Trading at the market"
+                        : c.job === "Woodcutter"
+                          ? "Gathering timber"
+                          : "Hard at work";
   const pausedAt = useRef<number | null>(null);
   useFrame(({ clock }) => {
     if (!group.current) return;
@@ -383,7 +488,7 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
       0,
       ((pausedAt.current ?? Date.now()) - Date.parse(updatedAt)) / 1000,
     );
-    const progress = Math.min(1, elapsed / (42 / speed));
+    const progress = Math.min(1, elapsed / (12 / speed));
     const [x, z] = pointAlong(path, progress);
     const [nx, nz] = pointAlong(path, Math.min(1, progress + 0.01));
     const walking =
@@ -408,7 +513,7 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
       arm.current.rotation.x = walking
         ? right.current.rotation.x
         : ["farm", "build", "work"].includes(c.action) && !paused
-          ? Math.sin(t * 4) * 0.6
+          ? Math.sin(t * 4) * 0.9
           : 0;
     }
   });
@@ -453,6 +558,23 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
       />
       <group ref={arm} position={[-0.37, 1.15, 0]}>
         <Box p={[0, -0.22, 0]} s={[0.16, 0.48, 0.18]} c={c.skin} />
+        {["farm", "build", "work"].includes(c.action) && (
+          <group position={[0, -0.47, 0.15]}>
+            <Box p={[0, -0.2, 0]} s={[0.07, 0.85, 0.07]} c="#aa835b" />
+            <Box
+              p={[c.action === "farm" ? 0.15 : 0, 0.15, 0]}
+              s={[c.action === "farm" ? 0.45 : 0.3, 0.15, 0.18]}
+              c="#9ca99a"
+            />
+          </group>
+        )}
+        {["trade", "help", "steal"].includes(c.action) && (
+          <Box
+            p={[0, -0.4, 0.18]}
+            s={[0.38, 0.3, 0.28]}
+            c={c.action === "steal" ? "#82694b" : "#cbb078"}
+          />
+        )}
       </group>
       <Box p={[0.37, 0.93, 0]} s={[0.16, 0.48, 0.18]} c={c.skin} />
       <mesh position={[0, 1.55, 0]} castShadow>
@@ -470,8 +592,22 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
       {[-0.11, 0.11].map((x) => (
         <Box key={x} p={[x, 1.56, 0.28]} s={[0.045, 0.05, 0.025]} c="#4b4037" />
       ))}
+      {active && !selected && !hover && (
+        <WorldHtml
+          position={[0, 2.6, 0]}
+          center
+          distanceFactor={55}
+          zIndexRange={[25, 0]}
+        >
+          <div className={`activity-label ${c.action}`}>
+            <span className={`dot ${c.provider}`} />
+            {activity?.startsWith("undefined") ? "Tending the crops" : activity}
+            <small>{c.name}</small>
+          </div>
+        </WorldHtml>
+      )}
       {(selected || hover) && (
-        <Html
+        <WorldHtml
           position={[0, 2.35, 0]}
           center
           distanceFactor={65}
@@ -482,13 +618,13 @@ function CitizenAvatar({ citizen: c }: { citizen: Citizen }) {
             {c.name}
             <small>{c.action}</small>
           </div>
-        </Html>
+        </WorldHtml>
       )}
       {selected &&
         ["socialize", "alliance", "campaign", "help"].includes(c.action) && (
-          <Html position={[0, 3.5, 0]} center zIndexRange={[30, 0]}>
+          <WorldHtml position={[0, 3.5, 0]} center zIndexRange={[30, 0]}>
             <div className="speech">{c.message}</div>
-          </Html>
+          </WorldHtml>
         )}
     </group>
   );
@@ -661,6 +797,10 @@ function CameraRig() {
     controls.current?.target.set(0, 0, 0);
     controls.current?.update();
   }, [reset, camera]);
+  const focusRemaining = useRef(0);
+  useEffect(() => {
+    focusRemaining.current = following ? 1.5 : 0;
+  }, [following]);
   useFrame((_, delta) => {
     if (following && controls.current) {
       const c = citizens.find((c) => c.id === following);
@@ -669,7 +809,7 @@ function CameraRig() {
           roadPath(c.previousPosition, c.position),
           Math.min(
             1,
-            Math.max(0, (Date.now() - Date.parse(updatedAt)) / (42000 / speed)),
+            Math.max(0, (Date.now() - Date.parse(updatedAt)) / (12000 / speed)),
           ),
         );
         const target = new THREE.Vector3(x, 1, z);
@@ -678,6 +818,13 @@ function CameraRig() {
           .sub(controls.current.target)
           .multiplyScalar(1 - Math.exp(-delta * 2));
         camera.position.add(diff);
+        if (focusRemaining.current > 0) {
+          camera.position.lerp(
+            target.clone().add(new THREE.Vector3(10, 9, 13)),
+            1 - Math.exp(-delta * 3),
+          );
+          focusRemaining.current -= delta;
+        }
         controls.current.target.add(diff);
         controls.current.update();
       }
@@ -701,7 +848,11 @@ function CameraRig() {
   );
 }
 function ElectionCelebration() {
-  const active = useTown((s) => s.world.tick > 0 && s.world.tick % 60 === 0);
+  const active = useTown(
+    (s) =>
+      s.world.celebrationTick === s.world.tick ||
+      (s.world.tick > 0 && s.world.tick % 60 === 0),
+  );
   const confetti = useRef<THREE.InstancedMesh>(null);
   const transform = useMemo(() => new THREE.Object3D(), []);
   useFrame(({ clock }) => {
@@ -739,6 +890,11 @@ function ElectionCelebration() {
   ) : null;
 }
 function Scene() {
+  const [wave, setWave] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setWave((w) => w + 1), 4000);
+    return () => clearInterval(timer);
+  }, []);
   const citizens = useTown((s) => s.world.citizens),
     night = useTown((s) => s.world.tick % 6 >= 4);
   return (
@@ -763,7 +919,7 @@ function Scene() {
         <TownBuilding key={b.id} building={b} />
       ))}
       {citizens.map((c) => (
-        <CitizenAvatar key={c.id} citizen={c} />
+        <CitizenAvatar key={c.id} citizen={c} wave={wave} />
       ))}
       <Atmosphere />
       <ElectionCelebration />
@@ -781,17 +937,29 @@ function Scene() {
   );
 }
 export default function Town() {
+  const [labels, setLabels] = useState<HTMLDivElement | null>(null);
+  const portal = useMemo<RefObject<HTMLElement> | undefined>(
+    () => (labels ? { current: labels } : undefined),
+    [labels],
+  );
   return (
-    <Canvas
-      shadows
-      dpr={[1, 1.5]}
-      camera={{ position: [56, 51, 63], fov: 42, near: 0.1, far: 250 }}
-      onPointerMissed={() => useTown.getState().select(null)}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
-    >
-      <Suspense fallback={null}>
-        <Scene />
-      </Suspense>
-    </Canvas>
+    <div className="town-canvas">
+      <div ref={setLabels} className="world-labels" />
+      {portal && (
+        <Canvas
+          shadows
+          dpr={[1, 1.5]}
+          camera={{ position: [56, 51, 63], fov: 42, near: 0.1, far: 250 }}
+          onPointerMissed={() => useTown.getState().select(null)}
+          gl={{ antialias: true, powerPreference: "high-performance" }}
+        >
+          <LabelsPortal.Provider value={portal}>
+            <Suspense fallback={null}>
+              <Scene />
+            </Suspense>
+          </LabelsPortal.Provider>
+        </Canvas>
+      )}
+    </div>
   );
 }

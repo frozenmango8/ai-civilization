@@ -1584,3 +1584,622 @@ h4 {
     width: 23px;
   }
 }
+
+/* Stories stay close to the world; the full decision ledger opens on demand. */
+.town-purpose {
+  position: absolute;
+  top: 40px;
+  left: 39px;
+  width: 270px;
+  color: #536448;
+}
+.town-purpose h2 {
+  font:
+    30px/1.1 Georgia,
+    serif;
+  letter-spacing: -0.9px;
+  font-weight: 400;
+  margin: 14px 0 12px;
+}
+.town-purpose p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #849175;
+  max-width: 250px;
+}
+.purpose-progress {
+  height: 4px;
+  max-width: 245px;
+  background: #cfd7bf;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+.purpose-progress > span {
+  height: 100%;
+  display: block;
+  background: #889d68;
+  transition: width 1s;
+}
+.purpose-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  max-width: 245px;
+}
+.purpose-bottom small {
+  font-size: 8px;
+  color: #8f9c7f;
+}
+.purpose-bottom button {
+  font-size: 9px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #5f764a;
+}
+.town-purpose.urgent .eyebrow {
+  color: #ac795b;
+}
+.town-purpose.urgent .purpose-progress > span {
+  background: #b68b60;
+}
+.story-dock {
+  position: absolute;
+  bottom: 108px;
+  left: 50%;
+  transform: translateX(-48%);
+  width: 455px;
+  display: flex;
+  align-items: center;
+  padding: 11px 12px;
+  gap: 10px;
+  background: #f8f8efee;
+  border-radius: 10px;
+}
+.story-symbol {
+  color: #91a277;
+  flex-shrink: 0;
+}
+.story-open {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0;
+}
+.story-open strong {
+  font-size: 9px;
+  font-weight: 500;
+  display: block;
+}
+.story-open > span {
+  display: block;
+  font-size: 9px;
+  color: #929d82;
+  margin-top: 5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.watch-scene {
+  height: 27px;
+  width: 27px;
+  background: #e4ebd6;
+  color: #7e945e;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.story-details {
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #7f906b;
+}
+.journal {
+  width: 620px;
+}
+.recap-deltas {
+  display: flex;
+  background: #edf0e2;
+  padding: 13px 5px;
+  border-radius: 8px;
+  margin: 18px 0;
+  gap: 3px;
+}
+.recap-deltas > div {
+  flex: 1;
+  text-align: center;
+}
+.recap-deltas strong {
+  font-size: 18px;
+  color: #829861;
+  font-weight: 400;
+  display: block;
+}
+.recap-deltas strong.negative {
+  color: #b78b69;
+}
+.recap-deltas span {
+  font-size: 8px;
+  color: #939e82;
+  display: block;
+  margin-top: 5px;
+}
+.decision-providers {
+  display: flex;
+  gap: 9px;
+}
+.decision-providers > div {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #dce4cf;
+  border-radius: 7px;
+  padding: 10px;
+}
+.decision-providers strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.decision-providers strong small {
+  font-size: 8px;
+  margin-left: auto;
+  color: #849b69;
+}
+.decision-providers p {
+  font-size: 9px;
+  line-height: 1.6;
+  color: #97a086;
+  margin: 7px 0 0;
+}
+.decision-providers > div.provider-warning {
+  background: #f5ecdf;
+  border-color: #e5d4bd;
+}
+.decision-providers .provider-warning strong small {
+  color: #b28b62;
+}
+.recap-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #e0e5d6;
+  margin-top: 20px;
+}
+.recap-tabs button {
+  font-size: 10px;
+  padding: 10px 0;
+  color: #97a186;
+}
+.recap-tabs button.active {
+  border-bottom: 2px solid #8a9d72;
+  color: #6d8455;
+}
+.decision-list > button {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  padding: 14px 0;
+  text-align: left;
+  border-bottom: 1px solid #e3e8d9;
+  align-items: center;
+}
+.decision-avatar {
+  width: 32px;
+  height: 35px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #fff9e9;
+  font:
+    18px Georgia,
+    serif;
+  border-radius: 9px;
+}
+.decision-list > button > div {
+  flex: 1;
+}
+.decision-list strong {
+  display: flex;
+  font-size: 11px;
+  font-weight: 500;
+  gap: 10px;
+  align-items: center;
+}
+.decision-list strong small {
+  font-size: 8px;
+  color: #9caa8a;
+  font-weight: 400;
+}
+.decision-list p {
+  font-size: 10px;
+  color: #7f906b;
+  line-height: 1.7;
+  margin: 5px 0;
+}
+.decision-list blockquote {
+  font:
+    italic 11px/1.6 Georgia,
+    serif;
+  color: #a2ac93;
+  margin: 0;
+}
+.decision-list svg {
+  color: #9caa89;
+  flex-shrink: 0;
+}
+.decision-origin {
+  background: #edf0e4;
+  border-radius: 7px;
+  padding: 10px;
+  margin-top: 15px;
+}
+.decision-origin > span {
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c9363;
+}
+.decision-origin p {
+  font-size: 9px;
+  line-height: 1.7;
+  color: #8b9b79;
+  margin: 7px 0 0;
+}
+.decision-origin.fallback {
+  background: #f4eadc;
+}
+.decision-origin.fallback > span {
+  color: #b18c60;
+}
+.actual-usage {
+  color: #718a58 !important;
+  font-size: 9px !important;
+}
+.provider-failure {
+  padding: 8px;
+  background: #f3e8d8;
+  border-radius: 5px;
+  color: #ad8155 !important;
+}
+.project-wallet {
+  font-size: 12px;
+  color: #8e9f75;
+  background: #edf1e3;
+  padding: 12px;
+  border-radius: 6px;
+}
+.project-wallet span {
+  margin: 0 8px;
+}
+.project-option {
+  display: flex;
+  gap: 13px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e3e8d8;
+}
+.project-icon {
+  width: 40px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #98a875;
+  background: #edf0e2;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.project-option h3 {
+  font:
+    17px Georgia,
+    serif;
+  margin: 0;
+  color: #61744e;
+}
+.project-option p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #94a17f;
+  margin: 8px 0;
+}
+.project-option button {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 5px;
+  background: #e8eedc;
+  font-size: 9px;
+  color: #80976a;
+}
+.project-option button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.project-error {
+  color: #b78b66;
+  font-size: 10px;
+  line-height: 1.8;
+}
+.event-item {
+  width: 100%;
+  text-align: left;
+}
+.event-item:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.event-item:not(:disabled):hover {
+  background: #edf1e3;
+  border-radius: 7px;
+}
+.activity-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #f9fbefed;
+  padding: 5px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  color: #789058;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 9px #39552c12;
+}
+.activity-label.steal,
+.activity-label.protest {
+  background: #f5e7d4;
+  color: #b47e54;
+}
+.activity-label small {
+  opacity: 0.7;
+  font-size: 8px;
+}
+.scene-effect {
+  pointer-events: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8c9f62;
+  white-space: nowrap;
+  text-shadow: 0 1px 5px #fafceb;
+}
+.scene-effect span {
+  background: #f8faeddd;
+  padding: 4px 7px;
+  border-radius: 6px;
+}
+.farm-upgrade {
+  pointer-events: none;
+  background: #f8fbefdc;
+  border: 1px solid #ced9b8;
+  border-radius: 5px;
+  color: #81955f;
+  font-size: 8px;
+  padding: 4px 7px;
+  white-space: nowrap;
+}
+@media (max-width: 1200px) {
+  .town-purpose {
+    left: 28px;
+    top: 32px;
+    width: 225px;
+  }
+  .town-purpose h2 {
+    font-size: 26px;
+  }
+  .town-purpose p {
+    font-size: 9px;
+  }
+  .story-dock {
+    width: 390px;
+    left: 51%;
+    bottom: 103px;
+  }
+  .story-open strong {
+    font-size: 8px;
+  }
+  .story-details {
+    font-size: 7px;
+  }
+  .purpose-bottom {
+    gap: 8px;
+  }
+}
+@media (max-width: 1000px) {
+  .town-purpose {
+    width: 215px;
+  }
+  .town-purpose h2 {
+    font-size: 25px;
+  }
+  .story-dock {
+    bottom: 105px;
+    width: 330px;
+    left: auto;
+    right: 24px;
+    transform: none;
+  }
+  .factions {
+    bottom: 180px;
+  }
+  .story-symbol {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .town-purpose {
+    top: 94px;
+    left: 20px;
+    width: 230px;
+  }
+  .town-purpose h2 {
+    font-size: 22px;
+    margin: 9px 0;
+  }
+  .town-purpose p {
+    display: none;
+  }
+  .purpose-progress {
+    margin-top: 12px;
+    max-width: 225px;
+  }
+  .purpose-bottom {
+    max-width: 225px;
+    margin-top: 7px;
+    gap: 10px;
+  }
+  .purpose-bottom small {
+    font-size: 7px;
+  }
+  .purpose-bottom button {
+    font-size: 8px;
+  }
+  .town-purpose .eyebrow {
+    font-size: 6px;
+  }
+  .story-dock {
+    bottom: 100px;
+    left: 15px;
+    right: 15px;
+    width: auto;
+    padding: 9px;
+    gap: 7px;
+  }
+  .story-open strong {
+    font-size: 8px;
+  }
+  .story-open > span {
+    font-size: 8px;
+  }
+  .watch-scene {
+    height: 24px;
+    width: 24px;
+  }
+  .event-feed {
+    bottom: 170px;
+  }
+  .north {
+    bottom: 190px;
+  }
+  .inspect,
+  .roster {
+    bottom: 165px;
+  }
+  .journal {
+    padding: 23px 19px;
+  }
+  .journal h2 {
+    font-size: 24px;
+  }
+  .decision-providers {
+    flex-direction: column;
+  }
+  .decision-list p {
+    font-size: 9px;
+  }
+  .decision-list blockquote {
+    font-size: 10px;
+  }
+  .recap-deltas strong {
+    font-size: 16px;
+  }
+  .recap-deltas span {
+    font-size: 7px;
+  }
+  .project-option h3 {
+    font-size: 16px;
+  }
+  .project-option p {
+    font-size: 9px;
+  }
+  .project-option {
+    padding: 17px 0;
+  }
+}
+.town-rivalry {
+  font-size: 9px;
+  color: #ad8769;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 10px 0;
+}
+.town-rivalry > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c59b77;
+}
+.political-race {
+  padding: 18px 0 5px;
+}
+.political-race > p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #8c9c7c;
+}
+.political-race > button {
+  display: block;
+  padding: 10px 0;
+  text-align: left;
+  width: 100%;
+  border-bottom: 1px solid #e5e9da;
+}
+.political-race strong {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+.political-race small {
+  font-size: 8px;
+  color: #a0ac91;
+  margin-left: auto;
+}
+.political-race > button > p {
+  font:
+    italic 12px/1.8 Georgia,
+    serif;
+  color: #9aa98a;
+  margin: 5px 0;
+}
+.event-feed .event-item:disabled:hover {
+  color: inherit;
+}
+.event-feed .event-item {
+  transform: none;
+}
+@media (max-width: 700px) {
+  .town-rivalry {
+    font-size: 8px;
+    padding-top: 7px;
+  }
+  .political-race strong {
+    font-size: 10px;
+  }
+  .political-race small {
+    font-size: 7px;
+  }
+}
+.town-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.world-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.world-labels > div {
+  pointer-events: none !important;
+}

@@ -1,3 +1,4 @@
+import { applyProject } from "../src/world/projects.js";
 import { randomUUID } from "node:crypto";
 import {
   advanceWorld,
@@ -171,8 +172,17 @@ export class Simulation {
           )
             throw new Error("USAGE_EXCEEDED_RESERVATION");
           return { reservation: r, result };
-        } catch {
-          return { reservation: r, result: null };
+        } catch (error) {
+          const code = error instanceof Error ? error.message : "";
+          const detail = /^PROVIDER_HTTP_\d{3}$/.test(code)
+            ? `Provider returned HTTP ${code.slice(-3)}.`
+            : error instanceof Error &&
+                ["TimeoutError", "AbortError"].includes(error.name)
+              ? "Provider request timed out."
+              : code === "USAGE_EXCEEDED_RESERVATION"
+                ? "Reported usage exceeded its reservation."
+                : "Provider returned invalid or incomplete decisions.";
+          return { reservation: r, result: null, detail };
         }
       }),
     );
@@ -184,13 +194,43 @@ export class Simulation {
           if (i >= 0) decisions[i] = d;
         }
     const world = advanceWorld(acquired.world, decisions);
+    if (world.lastTick)
+      for (const provider of providers) {
+        const outcome = outcomes.find(
+          (o) => o.reservation.provider === provider,
+        );
+        const successful = !!outcome?.result;
+        const status =
+          acquired.world.mode === "demo"
+            ? "demo"
+            : successful
+              ? "ai"
+              : "fallback";
+        world.lastTick.providers[provider] = {
+          status,
+          detail:
+            status === "demo"
+              ? "Free simulation"
+              : successful
+                ? "10 validated AI decisions"
+                : (outcome?.detail ??
+                  acquired.issues.find((i) => i.startsWith(provider)) ??
+                  "AI unavailable"),
+        };
+        for (const decision of world.lastTick.decisions)
+          if (
+            world.citizens.find((c) => c.id === decision.citizenId)
+              ?.provider === provider
+          )
+            decision.source = status;
+      }
     const issues = [
       ...acquired.issues,
       ...outcomes
         .filter((o) => !o.result)
         .map(
           (o) =>
-            `${o.reservation.provider}: configured model request failed or returned invalid data. Demo fallback used; worst-case usage retained.`,
+            `${o.reservation.provider}: ${o.detail} Demo fallback used; worst-case usage retained.`,
         ),
     ];
     for (const [i, text] of issues.entries())
@@ -251,7 +291,7 @@ export class Simulation {
     return this.snapshot();
   }
   async control(command: {
-    action: "pause" | "play" | "mode" | "speed" | "save" | "load";
+    action: "pause" | "play" | "mode" | "speed" | "save" | "load" | "project";
     value?: string | number;
   }) {
     await this.initialize();
@@ -264,6 +304,23 @@ export class Simulation {
       if (row.busy) throw busy();
       const w: World = row.state;
       switch (command.action) {
+        case "project": {
+          let projected: World;
+          try {
+            projected = applyProject(w, command.value);
+          } catch (error) {
+            throw new HttpError(
+              400,
+              "PROJECT_UNAVAILABLE",
+              error instanceof Error ? error.message : "Project unavailable.",
+            );
+          }
+          await c.query(
+            "UPDATE worlds SET state=$1::jsonb,revision=revision+1 WHERE id='main'",
+            [JSON.stringify(projected)],
+          );
+          return;
+        }
         case "pause":
           w.paused = true;
           break;

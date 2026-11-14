@@ -81,23 +81,29 @@ export function fallbackDecisions(world: World): Decision[] {
         ? "rest"
         : world.food < 90 || (i + world.tick) % 7 === 0
           ? "farm"
-          : r < 3
-            ? "campaign"
-            : r < 6
-              ? "socialize"
-              : r < 8
-                ? "alliance"
-                : r < 10
-                  ? "help"
-                  : r === 10
-                    ? "steal"
-                    : r === 11
-                      ? "protest"
-                      : r < 15
-                        ? "build"
-                        : r < 18
-                          ? "trade"
-                          : "work";
+          : world.challenge?.status === "active" && (i + world.tick) % 4 === 0
+            ? world.challenge.kind === "repair"
+              ? "build"
+              : world.challenge.kind === "harvest"
+                ? "farm"
+                : "help"
+            : r < 3
+              ? "campaign"
+              : r < 6
+                ? "socialize"
+                : r < 8
+                  ? "alliance"
+                  : r < 10
+                    ? "help"
+                    : r === 10
+                      ? "steal"
+                      : r === 11
+                        ? "protest"
+                        : r < 15
+                          ? "build"
+                          : r < 18
+                            ? "trade"
+                            : "work";
     return {
       citizenId: c.id,
       action,
@@ -133,19 +139,37 @@ export function advanceWorld(
   const addEvent = (
     text: string,
     type: "life" | "election" | "world" | "system" = "life",
+    citizenId?: string,
+    relatedCitizenId?: string,
   ) =>
     w.events.unshift({
       id: `${w.tick}-${w.events.length}`,
       tick: w.tick,
       type,
       text,
+      citizenId,
+      relatedCitizenId,
     });
   const remember = (c: Citizen, message: string) => {
     c.memories = [message, ...c.memories].slice(0, 8);
   };
+  w.lastTick = {
+    tick: w.tick,
+    food: 0,
+    gold: 0,
+    wood: 0,
+    construction: 0,
+    happiness: 0,
+    decisions: [],
+    providers: {
+      terra: { status: "demo", detail: "Free simulation" },
+      sonnet: { status: "demo", detail: "Free simulation" },
+    },
+  };
   const defaults = fallbackDecisions(previous);
   for (const [i, c] of w.citizens.entries()) {
     const decision = decisions.find((d) => d.citizenId === c.id) ?? defaults[i];
+    c.playerDirected = false;
     c.previousPosition = [...c.position];
     c.action = decision.action;
     c.target = decision.target;
@@ -166,6 +190,15 @@ export function advanceWorld(
         alliance: "We’re stronger together.",
         help: "A little help goes a long way.",
       }[c.action];
+    const before = {
+      food: w.food,
+      wood: w.wood,
+      construction: w.construction,
+      wealth: c.wealth,
+      energy: c.energy,
+      happiness: c.happiness,
+    };
+    let outcome = "";
     let dest = "market";
     const other = w.citizens.find(
       (x) => x.id === decision.target && x.id !== c.id,
@@ -186,7 +219,9 @@ export function advanceWorld(
     switch (c.action) {
       case "farm":
         dest = "farm";
-        w.food += w.priority === "food" ? 23 : 18;
+        w.food +=
+          (w.priority === "food" ? 23 : 18) +
+          (w.upgrades?.includes("farm") ? 6 : 0);
         c.wealth += 3;
         break;
       case "work":
@@ -203,16 +238,33 @@ export function advanceWorld(
         break;
       case "build":
         dest = "construction";
-        if (w.wood >= 4 && w.gold >= 3) {
-          w.construction = clamp(
-            w.construction + (w.priority === "infrastructure" ? 3 : 2),
-          );
+        if (
+          (w.construction < 100 ||
+            (w.challenge?.status === "active" &&
+              w.challenge.kind === "repair")) &&
+          w.wood >= 4 &&
+          w.gold >= 3
+        ) {
+          if (
+            w.challenge?.status === "active" &&
+            w.challenge.kind === "repair"
+          ) {
+            dest = "market";
+            outcome = `${c.name} repaired the market stalls. One repair closer to reopening.`;
+          } else
+            w.construction = clamp(
+              w.construction + (w.priority === "infrastructure" ? 3 : 2),
+            );
           w.wood -= 4;
           w.gold -= 3;
           c.wealth += 4;
         }
         break;
       case "trade":
+        if (w.challenge?.status === "active" && w.challenge.kind === "repair") {
+          outcome = `${c.name} found the market closed. Builders need to repair the stalls.`;
+          break;
+        }
         if (c.wealth >= 3 && w.food >= 3) {
           c.wealth -= 3;
           w.gold += 3;
@@ -249,30 +301,63 @@ export function advanceWorld(
             `${c.name} ${c.action === "help" ? "offered a gift" : "shared a friendly moment"}.`,
           );
           addEvent(
-            `${c.name} and ${other.name} ${c.action === "alliance" ? "formed an alliance" : c.action === "help" ? "shared a little kindness" : "caught up at the square"}.`,
+            `${c.name} and ${other.name} ${c.action === "alliance" ? "formed an alliance" : c.action === "help" ? "shared a little kindness" : "stopped to catch up"}.`,
+            "life",
+            c.id,
+            other.id,
           );
         }
+        if (other)
+          outcome = `${c.name} ${c.action === "alliance" ? "made an alliance with" : c.action === "help" ? "helped" : "caught up with"} ${other.name}.`;
+        else outcome = `${c.name} looked for company at the square.`;
         break;
       case "steal":
         dest = "market";
         if (other && other.wealth >= 4) {
+          const betrayed = (c.relationships[other.id] ?? 0) > 15;
           c.wealth += 4;
           other.wealth -= 4;
           relate(-25);
-          remember(other, `${c.name} stole 4 gold from me.`);
+          remember(
+            other,
+            `${c.name} ${betrayed ? "betrayed my trust and stole" : "stole"} 4 gold from me.`,
+          );
           remember(c, `Stole from ${other.name}; trust was lost.`);
-          addEvent(`${other.name} caught ${c.name} taking their gold.`);
+          addEvent(
+            `${other.name} caught ${c.name} taking their gold.${betrayed ? " A friendship turned into a betrayal." : ""}`,
+            "life",
+            c.id,
+            other.id,
+          );
+          outcome = `${c.name} stole 4 gold from ${other.name}. Trust fell by 25.`;
         }
         break;
       case "protest":
         dest = "hall";
         c.happiness = clamp(c.happiness + 2);
         w.gold = Math.max(0, w.gold - 1);
-        addEvent(`${c.name} called for change outside Town Hall.`);
+        addEvent(
+          `${c.name} called for change outside Town Hall.`,
+          "life",
+          c.id,
+        );
+        outcome = `${c.name} protested at Town Hall.`;
         break;
       case "campaign":
         dest = "hall";
-        if (!w.candidates.includes(c.id)) w.candidates.push(c.id);
+        w.campaignPromises = {
+          ...(w.campaignPromises ?? {}),
+          [c.id]: c.message,
+        };
+        if (!w.candidates.includes(c.id)) {
+          w.candidates.push(c.id);
+          addEvent(
+            `${c.name} is running for mayor: “${c.message}”`,
+            "life",
+            c.id,
+          );
+        }
+        outcome = `${c.name} campaigned for mayor: “${c.message}”`;
         c.happiness = clamp(c.happiness + 2);
         break;
     }
@@ -283,20 +368,58 @@ export function advanceWorld(
     c.happiness = clamp(
       c.happiness - (c.hunger > 70 ? 6 : 0) - (c.energy < 20 ? 3 : 0),
     );
+    if (!outcome)
+      outcome =
+        c.action === "farm"
+          ? `${c.name} harvested ${w.food - before.food} food at Sunfield Farm.`
+          : c.action === "build"
+            ? w.construction > before.construction
+              ? `${c.name} built ${w.construction - before.construction}% of the library.`
+              : `${c.name} could not build: ${w.construction >= 100 ? "the library is complete" : "the town needs timber or gold"}.`
+            : c.action === "work"
+              ? `${c.name} earned ${(c.wealth - before.wealth).toFixed(1)} gold${w.wood > before.wood ? ` and collected ${w.wood - before.wood} wood` : w.food > before.food ? ` and harvested ${w.food - before.food} food` : ""}.`
+              : c.action === "rest"
+                ? `${c.name} went home to recharge and eat.`
+                : c.action === "trade"
+                  ? c.wealth < before.wealth
+                    ? `${c.name} bought a meal for 3 gold.`
+                    : `${c.name} found nothing affordable at the market.`
+                  : `${c.name} found nobody to steal from.`;
+    w.lastTick!.decisions.push({
+      citizenId: c.id,
+      action: c.action,
+      summary: outcome,
+      message: c.message,
+      source: "demo",
+      contribution:
+        w.challenge?.status === "active"
+          ? (
+              w.challenge.kind === "repair"
+                ? c.action === "build" && w.wood < before.wood
+                : w.challenge.kind === "harvest"
+                  ? c.action === "farm"
+                  : ["help", "alliance", "socialize"].includes(c.action) &&
+                    !!other
+            )
+            ? 1
+            : 0
+          : 0,
+    });
     const p = buildings.find((b) => b.id === dest)!.position;
     c.position = [
       p[0] + ((i % 5) - 2) * 0.65,
       p[1] + 2 + Math.floor(i / 5) * 0.5,
     ] as Point;
   }
-  // Social partners meet in the same square, so the rendered interaction has a real destination.
+  // Social visitors approach a busy partner instead of moving that partner away from work.
   for (const c of w.citizens)
     if (["socialize", "alliance", "help"].includes(c.action)) {
       const other = w.citizens.find((x) => x.id === c.target);
       if (other && !["socialize", "alliance", "help"].includes(other.action))
-        other.position = [c.position[0] + 1, c.position[1]];
+        c.position = [other.position[0] + 1, other.position[1]];
     }
-  if (w.tick % 60 === 0) {
+  if (w.tick % 60 === 0 || w.electionRequested) {
+    w.electionRequested = false;
     const candidates = w.candidates.length
       ? w.candidates
       : w.citizens.map((c) => c.id);
@@ -318,6 +441,7 @@ export function advanceWorld(
         .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
       votes[ranked[0].id]++;
     }
+    w.celebrationTick = w.tick;
     w.mayor = Object.keys(votes).sort(
       (a, b) => votes[b] - votes[a] || a.localeCompare(b),
     )[0];
@@ -349,6 +473,76 @@ export function advanceWorld(
       if (w.priority === "wellbeing") c.happiness = clamp(c.happiness + 4);
     }
   }
+  if (w.challenge?.status === "active") {
+    const useful = w.lastTick!.decisions.reduce(
+      (n, d) => n + (d.contribution ?? 0),
+      0,
+    );
+    w.challenge.progress = Math.min(
+      w.challenge.target,
+      w.challenge.progress + useful,
+    );
+    if (w.challenge.progress >= w.challenge.target) {
+      w.challenge.status = "won";
+      w.gold += 45;
+      w.celebrationTick = w.tick;
+      for (const c of w.citizens) c.happiness = clamp(c.happiness + 5);
+      addEvent(
+        `${w.challenge.title}: the town pulled together! +45 gold and +5 happiness.`,
+        "world",
+      );
+    } else if (w.tick >= w.challenge.deadline) {
+      w.challenge.status = "lost";
+      w.food = Math.max(0, w.food - 30);
+      for (const c of w.citizens) c.happiness = clamp(c.happiness - 5);
+      addEvent(
+        `${w.challenge.title}: time ran out. The disruption cost 30 food and 5 happiness.`,
+        "world",
+      );
+    }
+  }
+  if (w.tick % 12 === 3 && w.challenge?.status !== "active") {
+    const kind = (["repair", "harvest", "unity"] as const)[
+      Math.floor(w.tick / 12) % 3
+    ];
+    const detail = {
+      repair: {
+        title: "Storm at the market",
+        description:
+          "A storm damaged the stalls. Complete 6 building actions in 5 ticks to reopen trade.",
+      },
+      harvest: {
+        title: "The harvest is at risk",
+        description:
+          "Bring in the crop before the rain. Complete 8 farming actions in 5 ticks.",
+      },
+      unity: {
+        title: "A town divided",
+        description:
+          "Rivalries are growing. Complete 8 friendly interactions in 5 ticks.",
+      },
+    }[kind];
+    w.challenge = {
+      kind,
+      ...detail,
+      progress: 0,
+      target: kind === "repair" ? 6 : 8,
+      deadline: w.tick + 5,
+      status: "active",
+    };
+    addEvent(`${detail.title}! ${detail.description}`, "world");
+  }
+  if (w.construction === 100 && previous.construction < 100) {
+    w.celebrationTick = w.tick;
+    for (const c of w.citizens) c.happiness = clamp(c.happiness + 8);
+  }
+  w.lastTick!.food = w.food - previous.food;
+  w.lastTick!.gold = w.gold - previous.gold;
+  w.lastTick!.wood = w.wood - previous.wood;
+  w.lastTick!.construction = w.construction - previous.construction;
+  w.lastTick!.happiness =
+    w.citizens.reduce((n, c) => n + c.happiness, 0) / 20 -
+    previous.citizens.reduce((n, c) => n + c.happiness, 0) / 20;
   w.events = w.events.slice(0, 60);
   return w;
 }

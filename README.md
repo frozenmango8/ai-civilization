@@ -4,7 +4,7 @@ A small world with a life of its own. Twenty citizens live in an original low-po
 
 Built from an empty repository: there was no existing Express backend or provider integration to migrate. The framework uses React, TypeScript, Vite, React Three Fiber, Drei, Zustand, Tailwind, Node serverless functions, and Postgres. All art is procedural geometry; no external assets or fonts are required.
 
-**Status:** the framework is implemented and locally tested. It has not been deployed to Vercel. Live Neon connectivity and real provider credentials have not been tested. Complete the production checklist below before calling a deployment complete.
+**Validation:** local build, simulation, database, serverless startup, and browser checks are included. Complete the production checklist for your own Vercel deployment; local tests do not establish live provider or scheduler readiness.
 
 ## What you can do
 
@@ -14,6 +14,17 @@ Built from an empty repository: there was no existing Express backend or provide
 - Work, farm, build, trade, rest, socialize, steal, protest, campaign, ally, and help. Relationships, theft, gifts, and elections leave persistent memories.
 - Elect a mayor every 60 ticks (10 town days, six ticks/day). Every citizen casts one vote; only the mayor can set tax (0–25%) and resource priorities.
 - Pause, resume, step manually, change animation speed, inspect provider usage, and save/load a snapshot. Speed controls visual travel, not paid request frequency. Loading pauses the town and never resets cost accounting.
+
+## A town with something at stake
+
+- **Shape the town:** spend treasury resources on a festival, a permanent farm expansion, library construction, or a snap election. Projects never make AI calls, work in the free demo, and require operator access in a shared town. Festivals and snap elections have a one-town-day cooldown. The farm can be expanded once.
+- **Politics:** candidates retain their campaign promises, theft can betray a friendship, and rivalries appear on the map overlay. The town council shows the mayor, tax, candidates, and friendly connections (these are not predicted votes). A snap election gives all 20 citizens one vote on the next tick; regular elections still run every ten town days.
+- **Town challenges:** starting on tick 3 and then every 12 ticks, the town faces market repairs, an urgent harvest, or a social divide. Helpful actions make progress; unfunded repairs do not count. Market damage closes trading until repaired. Success awards 45 gold and 5 happiness; failure reduces food reserves and happiness.
+- **See each decision:** use **Recap** above the playback controls to see all 20 actions, messages, resource changes, and which provider decisions succeeded. Click a recap entry or a linked event to zoom into that citizen. Old saves begin recording a recap on their next tick.
+- **Watch the result:** citizens carry tools, crates, or bags, finish their walk in about 12 seconds at 1× speed, and show rotating action bubbles. A farm expansion adds a greenhouse. Festivals and elections celebrate in the square.
+- **Know what you paid for:** provider settings distinguish charged/reserved usage, actual settled usage, failed calls, and the latest tick’s AI/fallback result. “Configured” checks only variable presence; it is not a live credential test.
+
+These additions are backward compatible with existing JSONB worlds and snapshots. No database migration or reset is needed. Player projects leave the AI usage ledger untouched.
 
 ## Run the free demo
 
@@ -175,4 +186,4 @@ Browser tests require Chromium. This cloud machine provides `/usr/bin/chromium`.
 
 This is a complete playable framework, with intentionally modest game mechanics. Social interactions use a shared square, personality-driven provider prompts, and a numeric friendship/rivalry graph. Promises are short campaign messages rather than a separate policy-contract system. Construction completes one library. Elections trigger a confetti celebration in the square. Day/night changes with simulation phase, while characters, clouds, smoke, water and idle motion animate continuously. The simulation does not advance while paused. The private browser demo is never presented as multiplayer or autonomous.
 
-Real-provider access, exact model compatibility, Neon networking, Vercel production routing, scheduler delivery, production browser behavior, and physical MacBook Air performance remain to be validated after you connect your services. The production checklist is the handoff for those checks. No Vercel deployment has been claimed or performed by this implementation.
+For each target environment, verify real-provider access, exact model compatibility, Neon networking, Vercel production routing, scheduler delivery, production browser behavior, and physical device performance. The production checklist covers those checks. No local test should be interpreted as proof of a successful production provider call or autonomous scheduler delivery.

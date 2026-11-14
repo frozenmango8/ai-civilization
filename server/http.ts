@@ -15,7 +15,15 @@ export function authorized(
 }
 const control = z
   .object({
-    action: z.enum(["pause", "play", "mode", "speed", "save", "load"]),
+    action: z.enum([
+      "pause",
+      "play",
+      "mode",
+      "speed",
+      "save",
+      "load",
+      "project",
+    ]),
     value: z.union([z.string().max(20), z.number()]).optional(),
   })
   .strict();
