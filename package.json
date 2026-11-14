@@ -1,0 +1,48 @@
+{
+  "name": "little-civilization",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "dev:api": "tsx server/dev.ts",
+    "build": "tsc --noEmit && vite build",
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "playwright test",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "preview": "vite preview --host 0.0.0.0",
+    "verify:deployment": "tsx scripts/verify-deployment.ts",
+    "format": "prettier --write src server api scripts tests *.ts *.json *.html *.md"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "lucide-react": "^0.577.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.18",
+    "three": "^0.183.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.16.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.183.0",
+    "@vercel/node": "^5.6.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "prettier": "^3.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
