@@ -1,7 +1,7 @@
 import { z } from "zod";
-import type { Decision, Provider, World } from "../src/world/types";
-import { actions } from "../src/world/types";
-import { providerConfig } from "./config";
+import type { Decision, Provider, World } from "../src/world/types.js";
+import { actions } from "../src/world/types.js";
+import { providerConfig } from "./config.js";
 const decisionSchema = z
   .object({
     citizenId: z.string(),

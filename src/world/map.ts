@@ -1,4 +1,4 @@
-import type { Building, Point } from "./types";
+import type { Building, Point } from "./types.js";
 export const names = [
   "Milo",
   "Juniper",

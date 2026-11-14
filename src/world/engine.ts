@@ -1,5 +1,5 @@
-import { buildings, names } from "./map";
-import type { Citizen, Decision, Point, World } from "./types";
+import { buildings, names } from "./map.js";
+import type { Citizen, Decision, Point, World } from "./types.js";
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 export const dayOf = (world: World) => Math.floor(world.tick / 6) + 1;
 const jobs = [

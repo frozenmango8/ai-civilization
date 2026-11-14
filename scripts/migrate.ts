@@ -1,5 +1,5 @@
-import { database, transaction } from "../server/db";
-import { schema } from "../server/schema";
+import { database, transaction } from "../server/db.js";
+import { schema } from "../server/schema.js";
 await transaction(database(), async (c) => {
   await c.query("SELECT pg_advisory_xact_lock(4172026)");
   await c.query(schema);

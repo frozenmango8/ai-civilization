@@ -4,9 +4,9 @@ import {
   advanceWorld,
   createWorld,
   fallbackDecisions,
-} from "../src/world/engine";
-import { buildings, pointAlong, roadPath } from "../src/world/map";
-import { validateDecisions } from "../server/providers";
+} from "../src/world/engine.js";
+import { buildings, pointAlong, roadPath } from "../src/world/map.js";
+import { validateDecisions } from "../server/providers.js";
 test("twenty distinct citizens have homes; demo progresses without keys", () => {
   const w = createWorld();
   assert.equal(w.citizens.length, 20);
@@ -93,15 +93,13 @@ test("road interpolation traverses connected lanes and reaches its destination",
 test("provider responses reject duplicate IDs, other factions, illegal targets, and unauthorized policy", () => {
   const w = createWorld();
   const data = {
-    decisions: w.citizens
-      .slice(0, 10)
-      .map((c) => ({
-        citizenId: c.id,
-        action: "rest",
-        target: null,
-        message: "Hello",
-        policy: null,
-      })),
+    decisions: w.citizens.slice(0, 10).map((c) => ({
+      citizenId: c.id,
+      action: "rest",
+      target: null,
+      message: "Hello",
+      policy: null,
+    })),
   };
   assert.equal(validateDecisions(data, w, "terra").length, 10);
   const duplicate = structuredClone(data);

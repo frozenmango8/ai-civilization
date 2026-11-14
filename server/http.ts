@@ -1,9 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
-import { database } from "./db";
-import { HttpError } from "./config";
-import { Simulation } from "./service";
+import { database } from "./db.js";
+import { HttpError } from "./config.js";
+import { Simulation } from "./service.js";
 export function authorized(
   value: string | undefined,
   secret: string | undefined,

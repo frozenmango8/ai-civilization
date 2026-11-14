@@ -1,4 +1,4 @@
-import type { Provider, ProviderStatus } from "../src/world/types";
+import type { Provider, ProviderStatus } from "../src/world/types.js";
 export class HttpError extends Error {
   constructor(
     public status: number,

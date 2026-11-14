@@ -12,7 +12,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "preview": "vite preview --host 0.0.0.0",
     "verify:deployment": "tsx scripts/verify-deployment.ts",
-    "format": "prettier --write src server api scripts tests *.ts *.json *.html *.md"
+    "format": "prettier --write src server api scripts tests *.ts *.json *.html *.md",
+    "test:serverless": "tsc -p tsconfig.serverless.json && node scripts/check-serverless.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

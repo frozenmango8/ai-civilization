@@ -1,7 +1,7 @@
 import { afterEach, test } from "node:test";
 import assert from "node:assert/strict";
-import { decide } from "../server/providers";
-import { createWorld } from "../src/world/engine";
+import { decide } from "../server/providers.js";
+import { createWorld } from "../src/world/engine.js";
 const originalFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = originalFetch;

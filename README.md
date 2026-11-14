@@ -161,8 +161,11 @@ Manual tick POSTs require `Idempotency-Key: <current Unix milliseconds>:<UUID>`.
 ```sh
 npm run build         # Strict TypeScript check and production Vite bundle
 npm test              # Rules, Postgres SQL/transactions, budgets, locks, API requests
+npm run test:serverless # Emitted API boots in native Node ESM (no dev loader)
 npm run test:browser  # Production-bundle Chromium UI checks, after build
 ```
+
+The serverless smoke test compiles the API with NodeNext resolution and loads the emitted JavaScript in native Node, without Vite or tsx. Relative runtime imports explicitly use `.js` extensions so Vercel can resolve them. This catches startup failures that development-only module resolution can hide.
 
 Database tests use **PGlite**, real Postgres compiled to WASM, with an adapter serializing its one connection. They test SQL persistence across service instances, leases, concurrent requests, idempotency, snapshots, provider reservations and failure charging, authentication, HTTP methods, and matching visitor state. They do **not** replace a live multi-connection Neon/Vercel test. No test contacts a paid model.
 

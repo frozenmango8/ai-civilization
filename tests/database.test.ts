@@ -2,11 +2,11 @@ import { after, before, beforeEach, test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { PGlite } from "@electric-sql/pglite";
-import type { Database, DBClient } from "../server/db";
-import { schema } from "../server/schema";
-import { Simulation } from "../server/service";
-import { fallbackDecisions } from "../src/world/engine";
-import { handle } from "../server/http";
+import type { Database, DBClient } from "../server/db.js";
+import { schema } from "../server/schema.js";
+import { Simulation } from "../server/service.js";
+import { fallbackDecisions } from "../src/world/engine.js";
+import { handle } from "../server/http.js";
 const pg = new PGlite();
 // PGlite supplies real Postgres SQL. Serialize its one connection like a pool does.
 let tail = Promise.resolve();

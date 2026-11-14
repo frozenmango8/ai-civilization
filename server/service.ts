@@ -3,16 +3,21 @@ import {
   advanceWorld,
   createWorld,
   fallbackDecisions,
-} from "../src/world/engine";
-import type { Provider, Snapshot, Usage, World } from "../src/world/types";
-import { type Database, transaction } from "./db";
-import { budgets, HttpError, providerConfig, providerStatuses } from "./config";
+} from "../src/world/engine.js";
+import type { Provider, Snapshot, Usage, World } from "../src/world/types.js";
+import { type Database, transaction } from "./db.js";
+import {
+  budgets,
+  HttpError,
+  providerConfig,
+  providerStatuses,
+} from "./config.js";
 import {
   decide,
   type Decide,
   makePrompt,
   MAX_OUTPUT_TOKENS,
-} from "./providers";
+} from "./providers.js";
 const providers: Provider[] = ["terra", "sonnet"];
 const busy = () =>
   new HttpError(
