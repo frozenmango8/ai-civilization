@@ -319,3 +319,19 @@ test("mixed AI outcomes visibly identify fallback and retain only safe failure i
   assert.ok(usage.find((u) => u.provider === "terra")!.actualTokens > 0);
   assert.equal(usage.find((u) => u.provider === "sonnet")!.errors, 1);
 });
+
+test("citizen writing is committed with the world and retains provider authorship across readers", async () => {
+  const s = new Simulation(db, fakeAI);
+  await s.control({ action: "mode", value: "ai" });
+  await s.tick("writing");
+  const first = await s.snapshot(),
+    second = await new Simulation(db).snapshot();
+  assert.ok(first.world.writings!.length > 0);
+  assert.deepEqual(first.world.writings, second.world.writings);
+  assert.ok(first.world.writings!.every((e) => e.source === "ai"));
+  assert.ok(first.world.proposals!.every((p) => p.source === "ai"));
+  assert.equal(
+    first.usage.reduce((n, u) => n + u.calls, 0),
+    2,
+  );
+});

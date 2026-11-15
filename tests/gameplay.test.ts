@@ -119,3 +119,21 @@ test("ignoring a challenge produces a lasting consequence and completed librarie
     ),
   );
 });
+
+test("paused movement survives refresh and resumes from its frozen progress after a manual tick", async () => {
+  const { movementProgress, setPlayback } =
+    await import("../src/world/motion.js");
+  const w = createWorld("2026-01-01T00:00:00Z");
+  setPlayback(w, true, "2026-01-01T00:00:06Z");
+  assert.equal(movementProgress(w, Date.parse("2026-01-01T00:10:00Z")), 0.5);
+  assert.equal(movementProgress(structuredClone(w)), 0.5);
+  setPlayback(w, false, "2026-01-01T00:01:06Z");
+  assert.equal(movementProgress(w, Date.parse("2026-01-01T00:01:06Z")), 0.5);
+  setPlayback(w, true, "2026-01-01T00:01:07Z");
+  const stepped = advanceWorld(w, undefined, "2026-01-01T00:05:00Z");
+  setPlayback(stepped, false, "2026-01-01T00:05:02Z");
+  assert.equal(
+    movementProgress(stepped, Date.parse("2026-01-01T00:05:08Z")),
+    0.5,
+  );
+});

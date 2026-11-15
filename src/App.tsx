@@ -1,3 +1,7 @@
+import Chronicle, {
+  CitizenVoice,
+  ObservationControls,
+} from "./components/Chronicle";
 import { TownProgress, StoryDock, DecisionOrigin } from "./components/Stories";
 import {
   Component,
@@ -93,6 +97,7 @@ function ProviderBadge({ provider }: { provider: Provider }) {
   );
 }
 function CitizenPanel() {
+  const openChronicle = useTown((s) => s.openChronicle);
   const world = useTown((s) => s.world),
     selected = useTown((s) => s.selected),
     select = useTown((s) => s.select),
@@ -159,6 +164,16 @@ function CitizenPanel() {
           >
             <Focus size={15} />
             {following === c.id ? "Stop following" : "Follow citizen"}
+          </button>
+          <button
+            className="soft-button full journal-button"
+            onClick={() =>
+              openChronicle(
+                world.writings?.find((e) => e.authorId === c.id)?.id,
+              )
+            }
+          >
+            Read journal & posts <ChevronRight size={14} />
           </button>
           <DecisionOrigin id={c.id} />
           <h4>Connections</h4>
@@ -428,6 +443,9 @@ function Settings({ close }: { close: () => void }) {
   );
 }
 export default function App() {
+  const observation = useTown((s) => s.observation),
+    setObservation = useTown((s) => s.setObservation),
+    openChronicle = useTown((s) => s.openChronicle);
   const world = useTown((s) => s.world),
     storage = useTown((s) => s.storage),
     error = useTown((s) => s.error),
@@ -461,7 +479,7 @@ export default function App() {
     mayor = world.citizens.find((c) => c.id === world.mayor)!;
   const day = dayOf(world);
   return (
-    <main className="app">
+    <main className={`app ${observation ? "observation" : ""}`}>
       <header className="topbar">
         <a className="brand" href="/" aria-label="Little Civilization home">
           <div className="brand-mark">
@@ -487,6 +505,22 @@ export default function App() {
           <button onClick={() => select("hall")}>Town hall</button>
         </nav>
         <div className="top-right">
+          <button
+            className="view-toggle"
+            onClick={() => setObservation(!observation)}
+          >
+            {observation ? "Agent view" : "Town view"}
+            <ChevronDown size={12} />
+          </button>
+          <button
+            className="chronicle-toggle"
+            aria-label="Open living chronicle"
+            onClick={() => openChronicle()}
+          >
+            <MessageCircle size={15} />
+            <span>Chronicle</span>
+            <small>{world.writings?.length ?? 0}</small>
+          </button>
           <button
             className="icon-btn mobile-citizens"
             aria-label="Open citizen list"
@@ -634,6 +668,8 @@ export default function App() {
           </div>
         )}
         <CitizenPanel />
+        <CitizenVoice />
+        <ObservationControls />
         {roster && (
           <section className="roster panel">
             <button
@@ -861,6 +897,7 @@ export default function App() {
         </span>
       </footer>
       {settings && <Settings close={() => setSettings(false)} />}
+      <Chronicle />
     </main>
   );
 }

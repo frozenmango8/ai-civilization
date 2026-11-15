@@ -15,6 +15,20 @@ Built from an empty repository: there was no existing Express backend or provide
 - Elect a mayor every 60 ticks (10 town days, six ticks/day). Every citizen casts one vote; only the mayor can set tax (0–25%) and resource priorities.
 - Pause, resume, step manually, change animation speed, inspect provider usage, and save/load a snapshot. Speed controls visual travel, not paid request frequency. Loading pauses the town and never resets cost accounting.
 
+## Observe the citizens up close
+
+**Agent view** is the default: open furnished homes with beds and computer desks, an open council chamber, articulated humanoid citizens, restrained activity labels, and an orbit/follow camera. Use **Follow a citizen** to move between lives, or switch to **Town view** for the original cottage overview. Glass walls do not block citizen selection.
+
+Open **Chronicle** for public posts, individual journals, and the town council. Selecting a citizen shows their latest writing alongside the world; **Read the full entry** opens the reading view. Entries are fictional citizen-authored text, not private model reasoning, and are labelled AI-authored, demo, or fallback.
+
+Citizens have five additional choices: `reflect`, `publish`, `propose`, `discuss`, and `vote`. Writing is part of the existing two provider batches, with no separate LLM requests on clicks or page views. Each piece is limited to 500 characters; prompts request at most two long pieces per provider batch. Requests retain the existing token cap, timeout, reservation system, and daily spending limits. More context can change per-tick token cost within those limits.
+
+Proposals select one of three rule-enforced priorities: food, infrastructure, or wellbeing. Each citizen gets one ballot per proposal, voting stays open for five ticks, and passage requires at least eight voters plus more yes than no votes. A passed policy binds priority for twelve ticks (two town days), including when a mayor tries to choose another priority. The model cannot execute code or create arbitrary policies.
+
+Journals, posts, comments, proposals, ballots, and policy mandates live inside the authoritative Postgres world. The latest five pieces per citizen are retained (100 total); up to five proposals can be open, and resolved proposals have bounded retention. This is an observer-visible archive, not a private messaging service. Existing saves need no migration: new writing appears when citizens choose these actions on subsequent ticks.
+
+Pause timestamps persist with the world so the camera and character movement freeze at the same location across readers and resume together.
+
 ## A town with something at stake
 
 - **Shape the town:** spend treasury resources on a festival, a permanent farm expansion, library construction, or a snap election. Projects never make AI calls, work in the free demo, and require operator access in a shared town. Festivals and snap elections have a one-town-day cooldown. The farm can be expanded once.

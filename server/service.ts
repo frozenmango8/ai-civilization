@@ -1,3 +1,4 @@
+import { setPlayback } from "../src/world/motion.js";
 import { applyProject } from "../src/world/projects.js";
 import { randomUUID } from "node:crypto";
 import {
@@ -224,6 +225,20 @@ export class Simulation {
           )
             decision.source = status;
       }
+    for (const entry of world.writings ?? [])
+      if (entry.tick === world.tick) {
+        const author = world.citizens.find((c) => c.id === entry.authorId)!;
+        const decision = decisions.find((d) => d.citizenId === entry.authorId);
+        const ai = world.lastTick?.providers[author.provider]?.status === "ai";
+        entry.source =
+          ai && decision?.writing
+            ? "ai"
+            : acquired.world.mode === "ai"
+              ? "fallback"
+              : "demo";
+        const proposal = world.proposals?.find((p) => p.id === entry.id);
+        if (proposal) proposal.source = entry.source;
+      }
     const issues = [
       ...acquired.issues,
       ...outcomes
@@ -322,10 +337,10 @@ export class Simulation {
           return;
         }
         case "pause":
-          w.paused = true;
+          setPlayback(w, true);
           break;
         case "play":
-          w.paused = false;
+          setPlayback(w, false);
           break;
         case "mode":
           if (command.value !== "demo" && command.value !== "ai")
@@ -365,6 +380,7 @@ export class Simulation {
           const loaded: World = save.state;
           loaded.updatedAt = new Date().toISOString();
           loaded.paused = true;
+          loaded.pausedAt = loaded.updatedAt;
           await c.query(
             "UPDATE worlds SET state=$1::jsonb,revision=revision+1 WHERE id='main'",
             [JSON.stringify(loaded)],

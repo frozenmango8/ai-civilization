@@ -1,3 +1,8 @@
+import {
+  recordSocialAction,
+  resolveProposals,
+  writingDecision,
+} from "./society.js";
 import { buildings, names } from "./map.js";
 import type { Citizen, Decision, Point, World } from "./types.js";
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
@@ -76,6 +81,26 @@ export function createWorld(now = new Date().toISOString()): World {
 export function fallbackDecisions(world: World): Decision[] {
   return world.citizens.map((c, i) => {
     const r = (world.tick * 7 + i * 13 + world.seed) % 29;
+    const proposal = world.proposals?.find(
+      (p) => p.status === "open" && p.closesAt > world.tick && !p.votes[c.id],
+    );
+    if (c.energy >= 30 && c.hunger <= 70) {
+      if (proposal && (world.tick + i) % 3 === 0)
+        return writingDecision(c, world, "vote", proposal.id);
+      if (proposal && (world.tick + i) % 11 === 0)
+        return writingDecision(c, world, "discuss", proposal.id);
+      if (
+        (world.tick + i) % 13 === 0 &&
+        !(world.proposals ?? []).some(
+          (p) => p.status === "open" && p.authorId === c.id,
+        )
+      )
+        return writingDecision(c, world, "propose");
+      if ((world.tick + i) % 7 === 0)
+        return writingDecision(c, world, "reflect");
+      if ((world.tick + i) % 17 === 0)
+        return writingDecision(c, world, "publish");
+    }
     const action =
       c.energy < 30 || c.hunger > 70
         ? "rest"
@@ -107,7 +132,12 @@ export function fallbackDecisions(world: World): Decision[] {
     return {
       citizenId: c.id,
       action,
-      target: world.citizens[(i + world.tick + 1) % 20].id,
+      target:
+        world.citizens[
+          (i + world.tick + 1) % 20 === i
+            ? (i + 1) % 20
+            : (i + world.tick + 1) % 20
+        ].id,
       message:
         action === "socialize"
           ? "Good company makes a good town."
@@ -136,6 +166,7 @@ export function advanceWorld(
   const w: World = structuredClone(previous);
   w.tick++;
   w.updatedAt = now;
+  if (w.paused) w.pausedAt = now;
   const addEvent = (
     text: string,
     type: "life" | "election" | "world" | "system" = "life",
@@ -189,6 +220,11 @@ export function advanceWorld(
         campaign: "Let’s grow a better town.",
         alliance: "We’re stronger together.",
         help: "A little help goes a long way.",
+        reflect: "Putting today into words.",
+        publish: "I have something to share.",
+        propose: "Let’s decide this together.",
+        discuss: "There is another side to this.",
+        vote: "My vote should count, too.",
       }[c.action];
     const before = {
       food: w.food,
@@ -217,6 +253,16 @@ export function advanceWorld(
       );
     };
     switch (c.action) {
+      case "reflect":
+      case "publish":
+      case "propose":
+      case "discuss":
+      case "vote": {
+        const social = recordSocialAction(w, c, decision);
+        dest = social.dest;
+        outcome = social.summary;
+        break;
+      }
       case "farm":
         dest = "farm";
         w.food +=
@@ -363,7 +409,8 @@ export function advanceWorld(
     }
     if (decision.policy && c.id === w.mayor) {
       w.tax = clamp(decision.policy.tax, 0, 0.25);
-      w.priority = decision.policy.priority;
+      if (!w.mandate || w.tick >= w.mandate.until)
+        w.priority = decision.policy.priority;
     }
     c.happiness = clamp(
       c.happiness - (c.hunger > 70 ? 6 : 0) - (c.energy < 20 ? 3 : 0),
@@ -410,7 +457,13 @@ export function advanceWorld(
       p[0] + ((i % 5) - 2) * 0.65,
       p[1] + 2 + Math.floor(i / 5) * 0.5,
     ] as Point;
+    if (["rest", "reflect", "publish"].includes(c.action))
+      c.position = [
+        p[0] + (c.action === "rest" ? 1 : -1),
+        p[1] + (c.action === "rest" ? 0.5 : -0.8),
+      ];
   }
+  resolveProposals(w);
   // Social visitors approach a busy partner instead of moving that partner away from work.
   for (const c of w.citizens)
     if (["socialize", "alliance", "help"].includes(c.action)) {

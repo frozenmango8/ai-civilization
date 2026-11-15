@@ -43,6 +43,18 @@ for (const provider of ["terra", "sonnet"] as const)
         provider === "terra" ? body.text.format : body.output_config.format;
       assert.equal(format.type, "json_schema");
       assert.equal(format.schema.additionalProperties, false);
+      const item = format.schema.properties.decisions.items;
+      assert.deepEqual(
+        new Set(item.required),
+        new Set(Object.keys(item.properties)),
+      );
+      const writing = item.properties.writing.anyOf.find(
+        (v: any) => v.type === "object",
+      );
+      assert.deepEqual(
+        new Set(writing.required),
+        new Set(Object.keys(writing.properties)),
+      );
       assert.ok(!JSON.stringify(format.schema).includes("maxLength"));
       return Response.json({
         usage: { input_tokens: 120, output_tokens: 220 },

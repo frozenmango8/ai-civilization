@@ -120,6 +120,9 @@ export function applyProject(previous: World, value: unknown): World {
     text,
   });
   w.events = w.events.slice(0, 60);
-  w.updatedAt = new Date().toISOString();
+  if (id === "festival") {
+    w.updatedAt = new Date().toISOString();
+    if (w.paused) w.pausedAt = w.updatedAt;
+  }
   return w;
 }

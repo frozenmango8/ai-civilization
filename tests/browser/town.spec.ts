@@ -192,3 +192,73 @@ test("completed projects change the 3D scene and festivals gather the town", asy
   await page.screenshot({ path: "test-results/town-projects-complete.png" });
   expect(errors).toEqual([]);
 });
+
+test("agent world shows authored journals, proposals, and close-up observation without extra AI calls", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  let ticks = 0;
+  page.on("request", (r) => {
+    if (new URL(r.url()).pathname === "/api/tick") ticks++;
+  });
+  await page.goto("/");
+  await expect(page.getByText("Private demo", { exact: true })).toBeVisible();
+  await expect(page.getByText("Sol × Sonnet world")).toBeVisible();
+  await page.getByRole("button", { name: "Pause simulation" }).click();
+  await page.getByRole("button", { name: "Open living chronicle" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "The living chronicle" }),
+  ).toBeVisible();
+  await expect(page.locator(".writing-card")).toHaveCount(1);
+  await page
+    .getByRole("button", { name: "Read entry", exact: true })
+    .first()
+    .click();
+  await expect(page.locator(".writing-card.expanded")).toBeVisible();
+  await page.getByRole("button", { name: /Journals/ }).click();
+  await expect(page.locator(".writing-card")).toHaveCount(2);
+  await page.screenshot({ path: "test-results/agent-journals.png" });
+  await page.getByRole("button", { name: /Town council/ }).click();
+  await expect(page.locator(".proposal-card")).toHaveCount(2);
+  await expect(
+    page.getByText("8 voters + majority required").first(),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close chronicle" }).click();
+  await page
+    .getByRole("button", { name: "Follow a citizen", exact: true })
+    .click();
+  await expect(page.locator(".citizen-voice")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Stop following" }),
+  ).toBeVisible();
+  await page.waitForTimeout(1800);
+  const nameplate = await page.locator(".citizen-label").first().boundingBox();
+  expect(nameplate).not.toBeNull();
+  expect(nameplate!.x + nameplate!.width / 2).toBeGreaterThan(450);
+  expect(nameplate!.x + nameplate!.width / 2).toBeLessThan(990);
+  await page.screenshot({ path: "test-results/agent-follow.png" });
+  expect(ticks).toBe(0);
+  expect(errors).toEqual([]);
+});
+test("mobile chronicle remains readable and can switch between world views", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.getByText("Private demo", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Open living chronicle" }).click();
+  await page.getByRole("button", { name: /Journals/ }).click();
+  await expect(page.locator(".writing-card").first()).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({ path: "test-results/agent-journal-mobile.png" });
+  await page.getByRole("button", { name: "Close chronicle" }).click();
+  await page.getByRole("button", { name: "Agent view", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Town view", exact: true }),
+  ).toBeVisible();
+});

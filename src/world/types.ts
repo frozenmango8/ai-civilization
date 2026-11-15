@@ -11,6 +11,11 @@ export const actions = [
   "campaign",
   "alliance",
   "help",
+  "reflect",
+  "publish",
+  "propose",
+  "discuss",
+  "vote",
 ] as const;
 export type Action = (typeof actions)[number];
 export type Point = [number, number];
@@ -93,6 +98,29 @@ export interface TownChallenge {
   deadline: number;
   status: "active" | "won" | "lost";
 }
+export type WritingKind = "diary" | "post" | "proposal" | "comment";
+export interface CitizenWriting {
+  id: string;
+  authorId: string;
+  kind: WritingKind;
+  title: string;
+  body: string;
+  tick: number;
+  source: "ai" | "demo" | "fallback";
+  referenceId?: string;
+}
+export interface Proposal {
+  source?: "ai" | "demo" | "fallback";
+  id: string;
+  authorId: string;
+  title: string;
+  body: string;
+  priority: "food" | "infrastructure" | "wellbeing";
+  tick: number;
+  closesAt: number;
+  status: "open" | "passed" | "rejected";
+  votes: Record<string, "yes" | "no">;
+}
 export interface World {
   version: 1;
   tick: number;
@@ -100,6 +128,7 @@ export interface World {
   seed: number;
   mode: "demo" | "ai";
   paused: boolean;
+  pausedAt?: string;
   speed: number;
   food: number;
   gold: number;
@@ -120,6 +149,9 @@ export interface World {
   electionRequested?: boolean;
   lastElectionRequestTick?: number;
   campaignPromises?: Record<string, string>;
+  writings?: CitizenWriting[];
+  proposals?: Proposal[];
+  mandate?: { priority: World["priority"]; until: number; proposalId: string };
 }
 export interface Decision {
   citizenId: string;
@@ -127,6 +159,13 @@ export interface Decision {
   target?: string;
   message?: string;
   policy?: { tax: number; priority: World["priority"] };
+  writing?: {
+    title: string;
+    body: string;
+    referenceId: string | null;
+    stance: "yes" | "no" | null;
+    priority: World["priority"] | null;
+  } | null;
 }
 export interface Usage {
   provider: Provider;

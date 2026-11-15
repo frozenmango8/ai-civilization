@@ -2203,3 +2203,1268 @@ h4 {
 .world-labels > div {
   pointer-events: none !important;
 }
+
+/* A closer, observer-led view of the same authoritative world. */
+.view-toggle,
+.chronicle-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  padding: 7px 9px;
+  border: 1px solid #dde5d4;
+  border-radius: 6px;
+}
+.chronicle-toggle small {
+  font-size: 8px;
+  background: #e2e9da;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.journal-button {
+  margin-top: 8px;
+}
+.world-identity {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 14px 16px;
+  background: #0f1825ef;
+  border: 1px solid #4a8994;
+  border-left: 3px solid #80cfce;
+  border-radius: 10px;
+  color: #edf3f7;
+  box-shadow: 0 10px 40px #07111a33;
+  min-width: 255px;
+}
+.world-identity strong {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  display: block;
+}
+.world-identity small {
+  display: block;
+  font-size: 9px;
+  color: #91a8b6;
+  margin-top: 6px;
+}
+.identity-live {
+  height: 7px;
+  width: 7px;
+  background: #8cdbca;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #71d1c566;
+}
+.identity-version {
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  color: #75b4b8;
+  margin-left: auto;
+  align-self: flex-start;
+}
+.observe-tools {
+  position: absolute;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-48%);
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 8px;
+  background: #101c2be8;
+  border: 1px solid #2c4859;
+  color: #a6bfce;
+  gap: 2px;
+}
+.observe-tools button {
+  font-size: 9px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.observe-tools button:hover {
+  background: #203649;
+  color: #e7f3f8;
+}
+.citizen-voice {
+  position: absolute;
+  bottom: 110px;
+  left: 24px;
+  width: 365px;
+  max-height: 310px;
+  overflow: auto;
+  background: #111c2cf2;
+  border: 1px solid #2d465b;
+  border-left: 3px solid #87c9cc;
+  border-radius: 8px;
+  padding: 18px;
+  color: #cbd9e2;
+  z-index: 35;
+  box-shadow: 0 12px 40px #050b1533;
+}
+.voice-identity {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.voice-avatar {
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font:
+    17px Georgia,
+    serif;
+  color: #f7fafb;
+}
+.voice-identity > div {
+  flex: 1;
+}
+.voice-identity strong {
+  display: block;
+  font-size: 12px;
+}
+.voice-identity small {
+  font-size: 8px;
+  color: #829bac;
+  display: block;
+  margin-top: 5px;
+}
+.voice-identity svg {
+  color: #80bfc6;
+}
+.citizen-voice h3 {
+  font:
+    19px/1.3 Georgia,
+    serif;
+  margin: 17px 0 9px;
+  color: #e8eef2;
+}
+.citizen-voice p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #acbfcc;
+  margin: 12px 0;
+}
+.citizen-voice > button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  color: #82c4cd;
+  margin-top: 12px;
+}
+.world-writing {
+  width: 235px;
+  display: block;
+  text-align: left;
+  padding: 13px;
+  background: #101a2df2;
+  border: 1px solid #53688b;
+  border-top: 3px solid #a98ce9;
+  border-radius: 5px;
+  color: #e5ebf3;
+  pointer-events: auto;
+  box-shadow: 0 8px 24px #0005;
+}
+.world-writing > span {
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #ac99e4;
+  display: block;
+}
+.world-writing strong {
+  font-size: 12px;
+  line-height: 1.5;
+  display: block;
+  margin: 9px 0;
+}
+.world-writing p {
+  font-size: 9px;
+  line-height: 1.8;
+  color: #a4b8c8;
+  margin: 0;
+}
+.world-writing small {
+  display: block;
+  margin-top: 8px;
+  font-size: 8px;
+  color: #89c4d0;
+}
+.observation {
+  color: #cddbe4;
+  background: #0c1520;
+}
+.observation .topbar {
+  background: #101925;
+  border-color: #253644;
+  height: 74px;
+}
+.observation .brand {
+  color: #dbe7ed;
+  font-size: 23px;
+}
+.observation .brand-mark {
+  background: #1b303c;
+  border-color: #3a5f69;
+  color: #8fc8c7;
+}
+.observation .brand span {
+  color: #7b96a4;
+}
+.observation .topbar nav button {
+  color: #7e97a7;
+}
+.observation .topbar nav .nav-active {
+  color: #c2dbe4;
+}
+.observation .topbar nav .nav-active:after {
+  background: #83c6cf;
+}
+.observation .topbar nav button span {
+  background: #203442;
+}
+.observation .view-toggle,
+.observation .chronicle-toggle {
+  border-color: #314955;
+  color: #abc4d1;
+}
+.observation .chronicle-toggle small {
+  background: #294453;
+  color: #9ac4cf;
+}
+.observation .game {
+  background: #2b4246;
+}
+.observation .panel {
+  background: #121e2ced;
+  border-color: #304759;
+  color: #c7d9e4;
+  box-shadow: 0 7px 24px #050e1825;
+}
+.observation .eyebrow {
+  color: #87a0af;
+}
+.observation .stat strong,
+.observation .mayor-stat strong,
+.observation .date-pill strong {
+  color: #d2e4ed;
+}
+.observation .stat {
+  border-color: #2c414f;
+}
+.observation .stat-icon,
+.observation .mayor-icon {
+  color: #91bac0;
+}
+.observation .icon-btn {
+  color: #a0bdcb;
+}
+.observation .icon-btn:hover {
+  background: #284050;
+  color: #e5f4f8;
+}
+.observation .map-tools > span,
+.observation .control-divider {
+  background: #334b59;
+}
+.observation .play-button {
+  background: #68959b;
+  color: #f3fbfe;
+}
+.observation .speed-controls button.active {
+  background: #2a4855;
+  color: #b1dce1;
+}
+.observation .mode-control,
+.observation .play-state span {
+  color: #8baab7;
+}
+.observation .play-state strong {
+  color: #c7e0e7;
+}
+.observation .demo-leaf {
+  color: #99c6b5;
+}
+.observation .factions p,
+.observation .faction-row > span:nth-child(2) {
+  color: #839cab;
+}
+.observation .faction-title,
+.observation .faction-row > small {
+  color: #9cb8c5;
+}
+.observation .feed-heading {
+  color: #c9dde7;
+}
+.observation .feed-tabs,
+.observation .event-item {
+  border-color: #30434f;
+}
+.observation .feed-tabs button.active {
+  color: #a4d2d6;
+  border-color: #8ac3c9;
+}
+.observation .event-item p {
+  color: #aac2ce;
+}
+.observation .event-item small {
+  color: #6e8d9e;
+}
+.observation .event-symbol {
+  background: #273a46;
+  color: #9bbfbc;
+}
+.observation .event-symbol.life {
+  background: #3a3b42;
+  color: #c9b79d;
+}
+.observation .event-symbol.system {
+  background: #493a31;
+  color: #dbb28c;
+}
+.observation .event-item:not(:disabled):hover {
+  background: #213744;
+}
+.observation .feed-footer {
+  background: #162733;
+  color: #7195a5;
+}
+.observation .feed-tabs button {
+  color: #7796a5;
+}
+.observation .town-purpose {
+  top: 124px;
+  left: 25px;
+  width: 245px;
+  color: #c4d8df;
+}
+.observation .town-purpose h2 {
+  font: 20px/1.3 var(--font-sans);
+  letter-spacing: -0.5px;
+  margin: 9px 0;
+}
+.observation .town-purpose p {
+  color: #90a7b3;
+  font-size: 9px;
+}
+.observation .purpose-progress {
+  background: #3b5356;
+  max-width: 225px;
+}
+.observation .purpose-progress > span {
+  background: #96c6b0;
+}
+.observation .purpose-bottom button {
+  color: #a0d5d5;
+}
+.observation .purpose-bottom small {
+  color: #8facb7;
+}
+.observation .town-notice {
+  display: none;
+}
+.observation .story-open > span {
+  color: #8babba;
+}
+.observation .story-details,
+.observation .story-symbol {
+  color: #8dbcc7;
+}
+.observation .watch-scene {
+  background: #294a56;
+  color: #a4d6da;
+}
+.observation .north {
+  color: #91b0ba;
+}
+.observation .connection-note {
+  background: #172c37dd;
+  color: #9cc2cb;
+}
+.observation .page-footer {
+  background: #101b26;
+  color: #658b9a;
+}
+.observation .person-title p,
+.observation .personality,
+.observation .muted {
+  color: #8eaabb;
+}
+.observation .inspect h2,
+.observation .modal h2,
+.observation .roster h2 {
+  color: #dbe8ee;
+}
+.observation .doing,
+.observation .decision-origin {
+  background: #203544;
+}
+.observation .doing small,
+.observation .decision-origin p {
+  color: #a6c1cc;
+}
+.observation .decision-origin > span {
+  color: #98d1c3;
+}
+.observation .soft-button {
+  background: #263f4d;
+  border-color: #3a5866;
+  color: #acd0d9;
+}
+.observation .relationship,
+.observation .setting-section {
+  border-color: #2d4553;
+}
+.observation .relationship {
+  color: #bad0da;
+}
+.observation .relationship small {
+  color: #8da8b8;
+}
+.observation h4 {
+  color: #9fc3cf;
+}
+.observation .meter {
+  background: #30454f;
+}
+.observation .memories p {
+  color: #8aa9b9;
+}
+.observation .building-illustration {
+  background: #263c46;
+  color: #9cbdba;
+}
+.observation .segmented {
+  background: #213644;
+}
+.observation .segmented button.active {
+  background: #355362;
+  color: #d5edf2;
+}
+.observation .setting-section input {
+  background: #132b38;
+  border-color: #3c5f6e;
+  color: #c6dde4;
+}
+.observation .setting-section label {
+  color: #8eabb7;
+}
+.observation .usage-row p {
+  color: #8ea9b8;
+}
+.observation .usage-row small {
+  color: #a3bfcb;
+}
+.observation .actual-usage {
+  color: #a0caba !important;
+}
+.observation .provider-failure {
+  background: #4c3c2e !important;
+  color: #dbb796 !important;
+}
+.observation .primary-button {
+  background: #476c7b;
+  color: #e0eff4;
+}
+.observation .story-dock {
+  background: #121f2eef;
+}
+.observation .activity-label {
+  background: #142638ee;
+  border: 1px solid #3b566f;
+  color: #c1d8e7;
+  font-size: 8px;
+  border-radius: 3px;
+}
+.observation .activity-label small {
+  color: #86a7be;
+}
+.observation .citizen-label {
+  background: #152d40;
+  color: #dcebf2;
+  border: 1px solid #527389;
+}
+.observation .citizen-label small {
+  color: #8cb5c5;
+}
+.observation .speech {
+  background: #172b3f;
+  color: #b9d2de;
+  border: 1px solid #436071;
+}
+.observation .farm-upgrade {
+  background: #152a37;
+  color: #a0c9c9;
+  border-color: #476c76;
+}
+.observation .game:has(.citizen-voice) .event-feed {
+  display: none;
+}
+.observation .inspect {
+  right: 24px;
+  width: 270px;
+  bottom: 170px;
+}
+.observation .roster-list > button {
+  border-color: #304451;
+}
+.observation .roster-list small {
+  color: #89a8b7;
+}
+.observation .roster-list strong {
+  color: #cbdfe8;
+}
+.archive-backdrop {
+  background: #060e19bb;
+  backdrop-filter: blur(9px);
+}
+.archive {
+  width: min(970px, 95vw);
+  max-height: 90dvh;
+  background: #111c2b;
+  color: #c8d9e4;
+  border: 1px solid #324959;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 100px #0007;
+  overflow: hidden;
+}
+.archive > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 29px 32px 24px;
+}
+.archive > header > button {
+  color: #8aa8bc;
+  padding: 3px;
+}
+.archive-kicker {
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: #7eb6c3;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.archive-kicker > span {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background: #8acfc8;
+}
+.archive h2 {
+  font:
+    29px Georgia,
+    serif;
+  letter-spacing: -0.4px;
+  color: #e1ecf2;
+  margin: 13px 0 9px;
+}
+.archive > header p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #829fb1;
+  margin: 0;
+}
+.archive > nav {
+  display: flex;
+  gap: 25px;
+  padding: 0 32px;
+  border-bottom: 1px solid #2a3f51;
+}
+.archive > nav > button {
+  font-size: 11px;
+  color: #879fb2;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 2px solid transparent;
+}
+.archive > nav > button.active {
+  color: #bedce9;
+  border-color: #81bccd;
+}
+.archive > nav small {
+  font-size: 8px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #233a4b;
+  color: #9fc4d4;
+}
+.archive-layout {
+  display: flex;
+  min-height: 0;
+  overflow: auto;
+  flex: 1;
+}
+.archive-layout > aside {
+  padding: 25px 24px;
+  width: 230px;
+  flex-shrink: 0;
+  border-right: 1px solid #2a3e4f;
+  background: #101b29;
+}
+.archive label {
+  display: block;
+  font-size: 9px;
+  color: #8eacbd;
+  margin-bottom: 10px;
+}
+.archive select {
+  width: 100%;
+  padding: 10px 9px;
+  background: #1d3043;
+  border: 1px solid #344e63;
+  border-radius: 6px;
+  color: #b9d0de;
+  font-size: 11px;
+}
+.archive-layout > aside > p {
+  font-size: 10px;
+  color: #7592a6;
+  line-height: 1.9;
+  margin: 15px 0;
+}
+.archive-note {
+  padding: 20px 0;
+  margin-top: 22px;
+  border-top: 1px solid #2a3d4e;
+  color: #7a9fb0;
+}
+.archive-note strong {
+  display: block;
+  font-size: 11px;
+  margin: 12px 0;
+}
+.archive-note p {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #69899e;
+}
+.archive-content {
+  padding: 24px;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  max-height: 62dvh;
+}
+.writing-card,
+.proposal-card {
+  padding: 20px;
+  background: #18283a;
+  border: 1px solid #2d4359;
+  border-radius: 9px;
+  margin-bottom: 16px;
+}
+.writing-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.writing-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font:
+    16px Georgia,
+    serif;
+  color: #f0f6f8;
+  flex-shrink: 0;
+}
+.writing-meta strong {
+  font-size: 11px;
+  color: #c7dce8;
+  display: block;
+}
+.writing-meta small {
+  font-size: 8px;
+  color: #7e9bb1;
+  display: block;
+  margin-top: 4px;
+}
+.authorship {
+  margin-left: auto;
+  font-size: 7px;
+  letter-spacing: 0.4px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: #273d50;
+  color: #91b2c8;
+  white-space: nowrap;
+}
+.authorship.ai {
+  background: #233e3c;
+  color: #9bc7b9;
+}
+.authorship.fallback {
+  background: #473b31;
+  color: #c2a585;
+}
+.entry-title {
+  text-align: left;
+  padding: 0;
+  width: 100%;
+}
+.writing-card h3,
+.proposal-card h3 {
+  font:
+    21px/1.35 Georgia,
+    serif;
+  color: #dbe7f1;
+  margin: 17px 0 12px;
+}
+.writing-card p,
+.proposal-card > p {
+  font-size: 12px;
+  line-height: 1.95;
+  color: #9fb7c9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.writing-card.expanded {
+  border-color: #55718d;
+  background: #1b2d40;
+}
+.writing-card > footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #30475a;
+  padding-top: 13px;
+  margin-top: 17px;
+}
+.writing-card > footer > button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  color: #8fbdcf;
+}
+.archive-empty {
+  padding: 55px 25px;
+  text-align: center;
+  color: #577e93;
+}
+.archive-empty h3 {
+  font:
+    23px Georgia,
+    serif;
+  color: #b3cbd9;
+  margin: 20px 0 13px;
+}
+.archive-empty p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #7d9aaf;
+  max-width: 340px;
+  margin: auto;
+}
+.entry-kind {
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #a49cda;
+}
+.proposal-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.proposal-card > div:first-child > small {
+  font-size: 8px;
+  color: #86a9b9;
+}
+.proposal-card.passed {
+  border-color: #40695f;
+}
+.proposal-card.passed .entry-kind {
+  color: #9fcec0;
+}
+.proposal-card.rejected .entry-kind {
+  color: #bc998b;
+}
+.vote-meter {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  background: #2b4151;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 15px 0 9px;
+}
+.vote-meter span {
+  display: block;
+  background: #86b6a5;
+}
+.vote-meter i {
+  display: block;
+  background: #ba8d7f;
+}
+.proposal-card > footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 9px;
+  color: #94b3c5;
+}
+.proposal-card > footer small {
+  font-size: 8px;
+  color: #708d9f;
+}
+.archive-footer {
+  padding: 13px 30px;
+  border-top: 1px solid #293e50;
+  font-size: 8px;
+  color: #617f94;
+  background: #101b29;
+}
+@media (max-width: 1200px) {
+  .observation .topbar {
+    padding: 0 22px;
+    gap: 12px;
+  }
+  .observation .topbar nav {
+    gap: 15px;
+  }
+  .observation .brand {
+    font-size: 20px;
+  }
+  .observation .top-right {
+    gap: 7px;
+  }
+  .view-toggle,
+  .chronicle-toggle {
+    font-size: 9px;
+    padding: 6px;
+  }
+  .observation .live-label {
+    display: none;
+  }
+  .world-identity {
+    min-width: 225px;
+  }
+  .world-identity strong {
+    font-size: 15px;
+  }
+  .observation .town-purpose {
+    width: 220px;
+  }
+  .citizen-voice {
+    width: 320px;
+  }
+  .observe-tools {
+    bottom: 172px;
+  }
+  .observation .inspect {
+    width: 260px;
+  }
+}
+@media (max-width: 1000px) {
+  .observation .topbar nav {
+    display: none;
+  }
+  .observation .town-purpose {
+    top: 120px;
+    width: 205px;
+  }
+  .world-identity {
+    top: 22px;
+  }
+  .observation .resource-bar .stat {
+    padding: 0 10px;
+    min-width: 75px;
+  }
+  .observation .story-dock {
+    bottom: 105px;
+  }
+  .observe-tools {
+    bottom: 24px;
+    left: auto;
+    right: 24px;
+    transform: none;
+    flex-direction: column;
+    padding: 4px;
+  }
+  .observe-tools button {
+    font-size: 8px;
+    padding: 8px;
+  }
+  .observation .factions {
+    display: none;
+  }
+  .citizen-voice {
+    bottom: 175px;
+    width: 280px;
+  }
+  .observation .inspect {
+    bottom: 170px;
+  }
+  .archive-layout > aside {
+    width: 195px;
+    padding: 22px 16px;
+  }
+}
+@media (max-width: 700px) {
+  .observation .topbar {
+    height: 63px;
+    padding: 0 13px;
+  }
+  .observation .brand {
+    font-size: 17px;
+  }
+  .observation .brand span {
+    font-size: 5px;
+    letter-spacing: 1.2px;
+  }
+  .observation .brand-mark {
+    width: 28px;
+    height: 32px;
+  }
+  .observation .top-right {
+    gap: 3px;
+  }
+  .view-toggle {
+    font-size: 7px;
+    padding: 5px;
+    gap: 3px;
+  }
+  .chronicle-toggle {
+    padding: 6px;
+    font-size: 8px;
+    gap: 4px;
+  }
+  .chronicle-toggle > span {
+    display: none;
+  }
+  .chronicle-toggle small {
+    font-size: 7px;
+  }
+  .observation .top-right .icon-btn {
+    width: 23px;
+  }
+  .world-identity {
+    top: 85px;
+    left: 16px;
+    min-width: 0;
+    padding: 10px 11px;
+    gap: 8px;
+    border-radius: 7px;
+    width: 230px;
+  }
+  .world-identity strong {
+    font-size: 13px;
+  }
+  .world-identity small {
+    font-size: 7px;
+    margin-top: 4px;
+  }
+  .identity-version {
+    font-size: 6px;
+  }
+  .observation .town-purpose {
+    top: 152px;
+    left: 17px;
+    width: 220px;
+  }
+  .observation .town-purpose h2 {
+    display: none;
+  }
+  .observation .town-purpose .eyebrow {
+    display: none;
+  }
+  .observation .purpose-progress {
+    margin-top: 0;
+    width: 210px;
+  }
+  .observation .purpose-bottom {
+    margin-top: 7px;
+  }
+  .observation .town-rivalry {
+    display: none;
+  }
+  .observation .date-pill {
+    top: 86px;
+    right: 15px;
+    padding: 8px 7px;
+    max-width: 110px;
+  }
+  .observation .date-pill small {
+    font-size: 6px;
+  }
+  .observation .map-tools {
+    top: 191px;
+  }
+  .observe-tools {
+    bottom: 165px;
+    right: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1px;
+    padding: 4px;
+  }
+  .observe-tools button {
+    font-size: 7px;
+    padding: 5px;
+    gap: 4px;
+  }
+  .observe-tools button svg {
+    width: 12px;
+  }
+  .observation .event-feed {
+    bottom: 210px;
+    width: 220px;
+  }
+  .observation .story-dock {
+    bottom: 99px;
+  }
+  .observation .control-bar {
+    bottom: 35px;
+  }
+  .observation .inspect {
+    top: 200px;
+    left: auto;
+    right: 15px;
+    bottom: 205px;
+    width: 220px;
+    padding: 18px;
+    max-height: 245px;
+  }
+  .observation .inspect .meters,
+  .observation .inspect .memories,
+  .observation .inspect .relationship,
+  .observation .inspect > h4,
+  .observation .inspect .personal-gold {
+    display: none;
+  }
+  .observation .inspect .person-title {
+    margin-top: 15px;
+  }
+  .observation .inspect .personality {
+    font-size: 11px;
+    margin: 12px 0;
+  }
+  .observation .inspect h2 {
+    font-size: 24px;
+  }
+  .observation .doing {
+    padding: 8px;
+  }
+  .observation .inspect .decision-origin {
+    display: none;
+  }
+  .citizen-voice {
+    left: 15px;
+    right: 15px;
+    bottom: 205px;
+    width: auto;
+    max-height: 180px;
+    padding: 13px;
+  }
+  .citizen-voice h3 {
+    font-size: 16px;
+    margin: 11px 0 7px;
+  }
+  .citizen-voice p {
+    font-size: 10px;
+    line-height: 1.8;
+    margin: 8px 0;
+  }
+  .voice-identity strong {
+    font-size: 11px;
+  }
+  .voice-identity small {
+    font-size: 7px;
+  }
+  .world-writing {
+    display: none;
+  }
+  .observation .game:has(.citizen-voice) .inspect {
+    display: none;
+  }
+  .archive {
+    max-height: 94dvh;
+    width: 96vw;
+    border-radius: 10px;
+  }
+  .archive > header {
+    padding: 22px 19px 18px;
+  }
+  .archive h2 {
+    font-size: 26px;
+  }
+  .archive > header p {
+    font-size: 10px;
+  }
+  .archive-kicker {
+    font-size: 6px;
+    letter-spacing: 1px;
+  }
+  .archive > nav {
+    gap: 16px;
+    padding: 0 19px;
+  }
+  .archive > nav > button {
+    font-size: 9px;
+    gap: 5px;
+    padding: 11px 0;
+  }
+  .archive > nav > button svg {
+    width: 13px;
+  }
+  .archive-layout {
+    flex-direction: column;
+    overflow: auto;
+  }
+  .archive-layout > aside {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid #2a3e4f;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .archive-layout > aside > label {
+    white-space: nowrap;
+    font-size: 8px;
+    margin: 0;
+  }
+  .archive select {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .archive-layout > aside > p,
+  .archive-note {
+    display: none;
+  }
+  .archive-content {
+    padding: 15px;
+    overflow: visible;
+    max-height: none;
+  }
+  .writing-card,
+  .proposal-card {
+    padding: 15px;
+    margin-bottom: 12px;
+  }
+  .writing-card h3,
+  .proposal-card h3 {
+    font-size: 20px;
+  }
+  .writing-card p,
+  .proposal-card > p {
+    font-size: 11px;
+  }
+  .writing-meta small {
+    font-size: 7px;
+  }
+  .authorship {
+    font-size: 6px;
+    padding: 4px;
+  }
+  .proposal-card > footer {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .archive-footer {
+    font-size: 7px;
+    padding: 12px 18px;
+  }
+}
+.chamber-sign {
+  color: #b7d7df;
+  background: #203845eb;
+  border: 1px solid #416676;
+  border-radius: 3px;
+  padding: 8px 13px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.chamber-sign small {
+  display: block;
+  margin-top: 6px;
+  font-size: 7px;
+  letter-spacing: 0.2px;
+  color: #7dabb7;
+}
+.voice-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #7da4b6;
+  padding: 4px;
+}
+.voice-identity > svg {
+  margin-right: 18px;
+}
+.observation .live-label {
+  display: flex;
+  color: #91b9c6;
+}
+@media (max-width: 700px) {
+  .observation .brand {
+    font-size: 14px;
+    gap: 6px;
+  }
+  .observation .brand span {
+    letter-spacing: 0.8px;
+  }
+  .observation .live-label {
+    font-size: 6px;
+    gap: 4px;
+  }
+  .observation .live-label .status-pulse {
+    width: 4px;
+    height: 4px;
+    box-shadow: none;
+  }
+  .observation .top-right {
+    gap: 3px;
+  }
+  .observation .chronicle-toggle small {
+    display: none;
+  }
+}
+@media (max-width: 370px) {
+  .observation .brand > div:last-child {
+    display: none;
+  }
+}
+.archive-backdrop {
+  padding: 12px;
+}
+.observation .activity-label.nameplate {
+  padding: 3px 5px;
+  background: #172634cc;
+  border-color: #354b5b;
+  font-size: 8px;
+  gap: 4px;
+}
+.observation .activity-label.nameplate .dot {
+  width: 4px;
+  height: 4px;
+}
+.observation .game:has(.citizen-voice) .town-purpose,
+.observation .game:has(.citizen-voice) .factions {
+  display: none;
+}

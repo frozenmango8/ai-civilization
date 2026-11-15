@@ -1,3 +1,4 @@
+import { setPlayback } from "./world/motion";
 import { applyProject } from "./world/projects";
 import { create } from "zustand";
 import type { Snapshot, World } from "./world/types";
@@ -18,6 +19,12 @@ function localWorld(): World {
   return advanceWorld(createWorld());
 }
 interface Store {
+  observation: boolean;
+  setObservation: (value: boolean) => void;
+  chronicleOpen: boolean;
+  reading: string | null;
+  openChronicle: (entryId?: string) => void;
+  closeChronicle: () => void;
   world: World;
   snapshot: Snapshot | null;
   storage: "connecting" | "browser" | "postgres";
@@ -49,6 +56,13 @@ async function request(path: string, init?: RequestInit) {
   return data;
 }
 export const useTown = create<Store>((set, get) => ({
+  observation: true,
+  setObservation: (observation) => set({ observation }),
+  chronicleOpen: false,
+  reading: null,
+  openChronicle: (entryId) =>
+    set({ chronicleOpen: true, reading: entryId ?? null }),
+  closeChronicle: () => set({ chronicleOpen: false, reading: null }),
   world: localWorld(),
   snapshot: null,
   storage: "connecting",
@@ -109,8 +123,8 @@ export const useTown = create<Store>((set, get) => ({
       } else {
         let world = structuredClone(get().world);
         if (action === "project") world = applyProject(world, value);
-        if (action === "play") world.paused = false;
-        if (action === "pause") world.paused = true;
+        if (action === "play") setPlayback(world, false);
+        if (action === "pause") setPlayback(world, true);
         if (action === "speed") world.speed = Number(value);
         if (action === "mode" && value === "ai")
           throw new Error(
@@ -124,6 +138,7 @@ export const useTown = create<Store>((set, get) => ({
           const loaded = JSON.parse(save);
           loaded.updatedAt = new Date().toISOString();
           loaded.paused = true;
+          loaded.pausedAt = loaded.updatedAt;
           set({ world: loaded });
           localStorage.setItem(localKey, JSON.stringify(loaded));
           return;

@@ -1,3 +1,4 @@
+import { movementProgress } from "../world/motion";
 import {
   Suspense,
   useEffect,
@@ -30,7 +31,14 @@ const boxMaterials = new Map<string, THREE.MeshStandardMaterial>();
 function boxMaterial(color: string) {
   let result = boxMaterials.get(color);
   if (!result) {
-    result = new THREE.MeshStandardMaterial({ color, roughness: 0.9 });
+    result = new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.9,
+      emissive: ["#7be3e8", "#eab882", "#98dcce"].includes(color)
+        ? color
+        : "#000000",
+      emissiveIntensity: 0.45,
+    });
     boxMaterials.set(color, result);
   }
   return result;
@@ -89,8 +97,78 @@ function Roof({
     </mesh>
   );
 }
+function AgentRoom({ building }: { building: Building }) {
+  const accent = Number(building.id.split("-")[1]) < 10 ? "#7be3e8" : "#eab882";
+  return (
+    <group>
+      <Box p={[0, 0.1, 0]} s={[5, 0.2, 5]} c="#aa927b" />
+      {[
+        [0, 1.45, -2.45, 5.0, 2.6, 0.08],
+        [-2.45, 1.45, 0, 0.08, 2.6, 5],
+        [2.45, 1.45, 0, 0.08, 2.6, 5],
+        [0, 1.45, 2.45, 5, 2.6, 0.08],
+      ].map((v, i) => (
+        <mesh key={i} position={[v[0], v[1], v[2]]} raycast={() => null}>
+          <boxGeometry args={[v[3], v[4], v[5]]} />
+          <meshPhysicalMaterial
+            color="#c8d9df"
+            transparent
+            opacity={0.14}
+            roughness={0.35}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+      {[-2.45, 2.45].map((x) => (
+        <group key={x}>
+          <Box p={[x, 2.8, 0]} s={[0.08, 0.1, 5]} c={accent} />
+          {[-2.45, 2.45].map((z) => (
+            <Box key={z} p={[x, 1.45, z]} s={[0.07, 2.7, 0.07]} c="#8499a2" />
+          ))}
+        </group>
+      ))}
+      {[-2.45, 2.45].map((z) => (
+        <Box key={z} p={[0, 2.8, z]} s={[5, 0.1, 0.08]} c={accent} />
+      ))}
+      <Box p={[1.05, 0.38, 0.85]} s={[1.5, 0.55, 2.3]} c="#5c6c70" />
+      <Box p={[1.05, 0.7, 1.15]} s={[1.45, 0.14, 1.65]} c={building.color} />
+      <Box p={[1.05, 0.76, -0.03]} s={[1.1, 0.14, 0.46]} c="#e2e4da" />
+      <Box p={[1.05, 0.72, -0.4]} s={[1.6, 0.9, 0.12]} c="#839396" />
+      <Box p={[-1.05, 0.85, -1.18]} s={[1.7, 0.13, 1]} c="#b2a18b" />
+      {[-1.7, -0.4].map((x) => (
+        <Box key={x} p={[x, 0.48, -1.18]} s={[0.09, 0.8, 0.85]} c="#6d7f82" />
+      ))}
+      <Box p={[-1.05, 1.22, -1.5]} s={[0.76, 0.55, 0.08]} c="#202f3b" />
+      <mesh position={[-1.05, 1.23, -1.45]}>
+        <boxGeometry args={[0.64, 0.43, 0.015]} />
+        <meshStandardMaterial
+          color={accent}
+          emissive={accent}
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+      <Box p={[-1.05, 0.96, -1]} s={[0.65, 0.05, 0.26]} c="#455861" />
+      <Box p={[-1.05, 0.52, 0.05]} s={[0.7, 0.12, 0.65]} c="#697e81" />
+      <Box p={[-1.05, 0.85, 0.35]} s={[0.7, 0.7, 0.1]} c="#697e81" />
+      <Box p={[-1.05, 0.3, 0.05]} s={[0.12, 0.5, 0.12]} c="#576b75" />
+      <Box p={[-1.7, 0.5, 1.6]} s={[0.65, 0.85, 0.65]} c="#8a9c8a" />
+      <mesh position={[-1.7, 1.2, 1.6]}>
+        <icosahedronGeometry args={[0.48, 1]} />
+        {material("#88a478")}
+      </mesh>
+    </group>
+  );
+}
 function Cottage({ building }: { building: Building }) {
   const night = useTown((s) => s.world.tick % 6 >= 4);
+  const observation = useTown((s) => s.observation);
+  if (
+    observation &&
+    building.kind === "home" &&
+    building.name !== "Town Library" &&
+    building.id.startsWith("home-")
+  )
+    return <AgentRoom building={building} />;
   return (
     <group>
       <Box p={[0, 1.25, 0]} s={[3.3, 2.5, 3.1]} c={building.color} />
@@ -154,7 +232,67 @@ function Tree({
     </group>
   );
 }
+function CouncilChamber() {
+  const open = useTown(
+    (s) => s.world.proposals?.filter((p) => p.status === "open").length ?? 0,
+  );
+  return (
+    <group>
+      <Box p={[0, 0.1, 0]} s={[8.5, 0.2, 7]} c="#9a8e7e" />
+      {[-4.2, 4.2].map((x) => (
+        <group key={x}>
+          <mesh position={[x, 1.7, 0]} raycast={() => null}>
+            <boxGeometry args={[0.08, 3.2, 7]} />
+            <meshPhysicalMaterial
+              color="#bfd4dc"
+              transparent
+              opacity={0.12}
+              roughness={0.3}
+              depthWrite={false}
+            />
+          </mesh>
+          <Box p={[x, 3.35, 0]} s={[0.1, 0.12, 7]} c="#98dcce" />
+        </group>
+      ))}
+      <mesh position={[0, 1.7, -3.45]} raycast={() => null}>
+        <boxGeometry args={[8.5, 3.2, 0.08]} />
+        <meshPhysicalMaterial
+          color="#bfd4dc"
+          transparent
+          opacity={0.12}
+          depthWrite={false}
+        />
+      </mesh>
+      {[-3.45, 3.45].map((z) => (
+        <Box key={z} p={[0, 3.35, z]} s={[8.5, 0.12, 0.1]} c="#98dcce" />
+      ))}
+      <Box p={[0, 0.95, -0.6]} s={[3.7, 0.17, 2]} c="#667d83" />
+      {[-2.7, 2.7].map((x) =>
+        [-1.7, -0.5, 0.7].map((z) => (
+          <group key={`${x}-${z}`}>
+            <Box p={[x, 0.55, z]} s={[0.7, 0.16, 0.7]} c="#526b78" />
+            <Box p={[x, 0.95, z + 0.3]} s={[0.7, 0.8, 0.1]} c="#526b78" />
+          </group>
+        )),
+      )}
+      <Box p={[0, 2, -3.3]} s={[3.4, 1.6, 0.1]} c="#223744" />
+      <WorldHtml
+        position={[0, 2.1, -3.15]}
+        center
+        distanceFactor={18}
+        zIndexRange={[20, 0]}
+      >
+        <div className="chamber-sign">
+          TOWN COUNCIL
+          <small>{open} open proposals · every citizen has a voice</small>
+        </div>
+      </WorldHtml>
+    </group>
+  );
+}
 function Hall() {
+  const observation = useTown((s) => s.observation);
+  if (observation) return <CouncilChamber />;
   return (
     <group>
       <Box p={[0, 1.8, 0]} s={[6.5, 3.6, 4.7]} c="#e4d6b8" />
@@ -430,17 +568,25 @@ function CitizenAvatar({
   const group = useRef<THREE.Group>(null),
     left = useRef<THREE.Group>(null),
     right = useRef<THREE.Group>(null),
-    arm = useRef<THREE.Group>(null);
+    arm = useRef<THREE.Group>(null),
+    otherArm = useRef<THREE.Group>(null),
+    bodyPose = useRef<THREE.Group>(null);
   const select = useTown((s) => s.select),
     selected = useTown((s) => s.selected === c.id),
     paused = useTown((s) => s.world.paused),
     updatedAt = useTown((s) => s.world.updatedAt),
-    speed = useTown((s) => s.world.speed);
+    speed = useTown((s) => s.world.speed),
+    frozenAt = useTown((s) => s.world.pausedAt);
   const path = useMemo(
     () => roadPath(c.previousPosition, c.position),
     [c.previousPosition, c.position],
   );
   const [hover, setHover] = useState(false);
+  const observation = useTown((s) => s.observation),
+    openWriting = useTown((s) => s.openChronicle);
+  const writing = useTown((s) =>
+    s.world.writings?.find((e) => e.authorId === c.id),
+  );
   const target = useTown(
     (s) => s.world.citizens.find((p) => p.id === c.target)?.name,
   );
@@ -454,41 +600,50 @@ function CitizenAvatar({
   );
   const active = Number(c.id.split("-")[1]) % 6 === wave % 6;
   const activity =
-    c.action === "farm"
-      ? report?.summary.match(/harvested (\d+) food/)?.[1] + " food harvested"
-      : c.action === "build"
-        ? repair
-          ? "Repairing the market"
-          : "Building the library"
-        : c.action === "socialize"
-          ? `Chatting${target ? " with " + target : ""}`
-          : c.action === "alliance"
-            ? `Allying${target ? " with " + target : ""}`
-            : c.action === "help"
-              ? `Helping${target ? " " + target : ""}`
-              : c.action === "steal"
-                ? "Making trouble"
-                : c.action === "campaign"
-                  ? "Vote for me!"
-                  : c.action === "protest"
-                    ? "We deserve better!"
-                    : c.action === "rest"
-                      ? "A little rest…"
-                      : c.action === "trade"
-                        ? "Trading at the market"
-                        : c.job === "Woodcutter"
-                          ? "Gathering timber"
-                          : "Hard at work";
-  const pausedAt = useRef<number | null>(null);
+    c.action === "reflect"
+      ? "Writing a journal"
+      : c.action === "publish"
+        ? "Publishing a post"
+        : c.action === "propose"
+          ? "Proposing a policy"
+          : c.action === "discuss"
+            ? "Commenting on a proposal"
+            : c.action === "vote"
+              ? "Casting a vote"
+              : c.action === "farm"
+                ? report?.summary.match(/harvested (\d+) food/)?.[1] +
+                  " food harvested"
+                : c.action === "build"
+                  ? repair
+                    ? "Repairing the market"
+                    : "Building the library"
+                  : c.action === "socialize"
+                    ? `Chatting${target ? " with " + target : ""}`
+                    : c.action === "alliance"
+                      ? `Allying${target ? " with " + target : ""}`
+                      : c.action === "help"
+                        ? `Helping${target ? " " + target : ""}`
+                        : c.action === "steal"
+                          ? "Making trouble"
+                          : c.action === "campaign"
+                            ? "Vote for me!"
+                            : c.action === "protest"
+                              ? "We deserve better!"
+                              : c.action === "rest"
+                                ? "A little rest…"
+                                : c.action === "trade"
+                                  ? "Trading at the market"
+                                  : c.job === "Woodcutter"
+                                    ? "Gathering timber"
+                                    : "Hard at work";
   useFrame(({ clock }) => {
     if (!group.current) return;
-    if (paused && pausedAt.current === null) pausedAt.current = Date.now();
-    if (!paused) pausedAt.current = null;
-    const elapsed = Math.max(
-      0,
-      ((pausedAt.current ?? Date.now()) - Date.parse(updatedAt)) / 1000,
-    );
-    const progress = Math.min(1, elapsed / (12 / speed));
+    const progress = movementProgress({
+      paused,
+      pausedAt: frozenAt,
+      updatedAt,
+      speed,
+    });
     const [x, z] = pointAlong(path, progress);
     const [nx, nz] = pointAlong(path, Math.min(1, progress + 0.01));
     const walking =
@@ -507,14 +662,35 @@ function CitizenAvatar({
       z,
     );
     if (walking) group.current.rotation.y = Math.atan2(nx - x, nz - z);
+    else if (["reflect", "publish"].includes(c.action))
+      group.current.rotation.y = Math.PI;
+    if (bodyPose.current) {
+      bodyPose.current.rotation.x =
+        !walking && c.action === "rest" ? -Math.PI / 2 : 0;
+      bodyPose.current.position.y = !walking && c.action === "rest" ? 0.65 : 0;
+    }
     if (left.current && right.current && arm.current) {
       left.current.rotation.x = walking && !paused ? Math.sin(t * 9) * 0.55 : 0;
       right.current.rotation.x = -left.current.rotation.x;
       arm.current.rotation.x = walking
         ? right.current.rotation.x
-        : ["farm", "build", "work"].includes(c.action) && !paused
+        : [
+              "farm",
+              "build",
+              "work",
+              "reflect",
+              "publish",
+              "discuss",
+              "propose",
+            ].includes(c.action) && !paused
           ? Math.sin(t * 4) * 0.9
           : 0;
+      if (otherArm.current)
+        otherArm.current.rotation.x = walking
+          ? -arm.current.rotation.x
+          : ["reflect", "publish"].includes(c.action)
+            ? -0.7 + Math.sin(t * 5) * 0.15
+            : 0;
     }
   });
   return (
@@ -542,75 +718,131 @@ function CitizenAvatar({
           opacity={selected ? 0.9 : 0.18}
         />
       </mesh>
-      <group ref={left} position={[-0.14, 0.65, 0]}>
-        <Box p={[0, -0.22, 0]} s={[0.18, 0.45, 0.2]} c="#56605a" />
-        <Box p={[0, -0.46, 0.06]} s={[0.22, 0.14, 0.32]} c="#5b5143" />
-      </group>
-      <group ref={right} position={[0.14, 0.65, 0]}>
-        <Box p={[0, -0.22, 0]} s={[0.18, 0.45, 0.2]} c="#56605a" />
-        <Box p={[0, -0.46, 0.06]} s={[0.22, 0.14, 0.32]} c="#5b5143" />
-      </group>
-      <Box p={[0, 0.93, 0]} s={[0.56, 0.65, 0.34]} c={c.color} />
-      <Box
-        p={[0, 1.05, 0.19]}
-        s={[0.48, 0.09, 0.03]}
-        c={c.provider === "terra" ? "#719db9" : "#c58c60"}
-      />
-      <group ref={arm} position={[-0.37, 1.15, 0]}>
-        <Box p={[0, -0.22, 0]} s={[0.16, 0.48, 0.18]} c={c.skin} />
-        {["farm", "build", "work"].includes(c.action) && (
-          <group position={[0, -0.47, 0.15]}>
-            <Box p={[0, -0.2, 0]} s={[0.07, 0.85, 0.07]} c="#aa835b" />
-            <Box
-              p={[c.action === "farm" ? 0.15 : 0, 0.15, 0]}
-              s={[c.action === "farm" ? 0.45 : 0.3, 0.15, 0.18]}
-              c="#9ca99a"
-            />
-          </group>
-        )}
-        {["trade", "help", "steal"].includes(c.action) && (
-          <Box
-            p={[0, -0.4, 0.18]}
-            s={[0.38, 0.3, 0.28]}
-            c={c.action === "steal" ? "#82694b" : "#cbb078"}
+      <group ref={bodyPose}>
+        <group ref={left} position={[-0.14, 0.85, 0]}>
+          <mesh position={[0, -0.3, 0]} castShadow>
+            <capsuleGeometry args={[0.1, 0.48, 4, 7]} />
+            {material("#384955")}
+          </mesh>
+          <Box p={[0, -0.65, 0.08]} s={[0.23, 0.13, 0.37]} c="#27333c" />
+        </group>
+        <group ref={right} position={[0.14, 0.85, 0]}>
+          <mesh position={[0, -0.3, 0]} castShadow>
+            <capsuleGeometry args={[0.1, 0.48, 4, 7]} />
+            {material("#384955")}
+          </mesh>
+          <Box p={[0, -0.65, 0.08]} s={[0.23, 0.13, 0.37]} c="#27333c" />
+        </group>
+        <mesh position={[0, 1.22, 0]} scale={[1, 0.95, 0.7]} castShadow>
+          <capsuleGeometry args={[0.27, 0.38, 5, 9]} />
+          {material(c.color)}
+        </mesh>
+        <mesh position={[0, 1.69, 0]}>
+          <cylinderGeometry args={[0.11, 0.12, 0.2, 7]} />
+          {material(c.skin)}
+        </mesh>
+        <mesh position={[0, 1.96, 0]} scale={[0.9, 1.15, 0.9]} castShadow>
+          <sphereGeometry args={[0.27, 12, 9]} />
+          {material(c.skin)}
+        </mesh>
+        <mesh position={[0, 2.11, -0.02]}>
+          <sphereGeometry
+            args={[0.27, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.5]}
           />
-        )}
+          {material(
+            ["#524030", "#aa8559", "#333539"][Number(c.id.split("-")[1]) % 3],
+          )}
+        </mesh>
+        <group ref={arm} position={[-0.36, 1.5, 0]}>
+          <mesh position={[0, -0.24, 0]} castShadow>
+            <capsuleGeometry args={[0.085, 0.36, 4, 7]} />
+            {material(c.color)}
+          </mesh>
+          <mesh position={[0, -0.52, 0]}>
+            <sphereGeometry args={[0.095, 7, 6]} />
+            {material(c.skin)}
+          </mesh>
+          <Box
+            p={[0, -0.1, 0.08]}
+            s={[0.15, 0.1, 0.03]}
+            c={c.provider === "terra" ? "#78d8e5" : "#e5b279"}
+          />
+          {["farm", "build", "work"].includes(c.action) && (
+            <group position={[0, -0.58, 0.1]}>
+              <Box p={[0, -0.2, 0]} s={[0.06, 0.8, 0.06]} c="#a88a64" />
+              <Box p={[0.1, 0.1, 0]} s={[0.38, 0.14, 0.16]} c="#a0b2b6" />
+            </group>
+          )}
+        </group>
+        <group ref={otherArm} position={[0.36, 1.5, 0]}>
+          <mesh position={[0, -0.24, 0]} castShadow>
+            <capsuleGeometry args={[0.085, 0.36, 4, 7]} />
+            {material(c.color)}
+          </mesh>
+          <mesh position={[0, -0.52, 0]}>
+            <sphereGeometry args={[0.095, 7, 6]} />
+            {material(c.skin)}
+          </mesh>
+        </group>
+        {[-0.09, 0.09].map((x) => (
+          <Box
+            key={x}
+            p={[x, 1.99, 0.24]}
+            s={[0.035, 0.04, 0.02]}
+            c="#273136"
+          />
+        ))}
       </group>
-      <Box p={[0.37, 0.93, 0]} s={[0.16, 0.48, 0.18]} c={c.skin} />
-      <mesh position={[0, 1.55, 0]} castShadow>
-        <sphereGeometry args={[0.32, 9, 7]} />
-        {material(c.skin)}
-      </mesh>
-      <mesh position={[0, 1.72, -0.03]}>
-        <sphereGeometry
-          args={[0.32, 9, 6, 0, Math.PI * 2, 0, Math.PI * 0.55]}
-        />
-        {material(
-          ["#664b34", "#a58a52", "#4b4037"][Number(c.id.split("-")[1]) % 3],
-        )}
-      </mesh>
-      {[-0.11, 0.11].map((x) => (
-        <Box key={x} p={[x, 1.56, 0.28]} s={[0.045, 0.05, 0.025]} c="#4b4037" />
-      ))}
-      {active && !selected && !hover && (
+      {(active || observation) && !selected && !hover && (
         <WorldHtml
           position={[0, 2.6, 0]}
           center
-          distanceFactor={55}
+          distanceFactor={active ? 38 : 22}
           zIndexRange={[25, 0]}
         >
-          <div className={`activity-label ${c.action}`}>
+          <div
+            className={`activity-label ${c.action} ${!active ? "nameplate" : ""}`}
+          >
             <span className={`dot ${c.provider}`} />
-            {activity?.startsWith("undefined") ? "Tending the crops" : activity}
-            <small>{c.name}</small>
+            {active
+              ? activity?.startsWith("undefined")
+                ? "Tending the crops"
+                : activity
+              : c.name}
+            {active && <small>{c.name}</small>}
           </div>
+        </WorldHtml>
+      )}
+      {selected && writing && (
+        <WorldHtml
+          position={[1.7, 3.3, 0]}
+          center
+          distanceFactor={10}
+          zIndexRange={[30, 0]}
+        >
+          <button
+            className="world-writing"
+            onClick={() => openWriting(writing.id)}
+          >
+            <span>
+              {writing.kind.toUpperCase()} ·{" "}
+              {writing.source === "ai"
+                ? "AI-authored"
+                : writing.source === "fallback"
+                  ? "Fallback"
+                  : "Demo"}
+            </span>
+            <strong>{writing.title}</strong>
+            <p>{writing.body.slice(0, 140)}…</p>
+            <small>Read the full entry →</small>
+          </button>
         </WorldHtml>
       )}
       {(selected || hover) && (
         <WorldHtml
-          position={[0, 2.35, 0]}
+          position={[0, 2.65, 0]}
           center
-          distanceFactor={65}
+          distanceFactor={12}
           zIndexRange={[30, 0]}
         >
           <div className="citizen-label">
@@ -630,6 +862,7 @@ function CitizenAvatar({
   );
 }
 function Landscape() {
+  const observation = useTown((s) => s.observation);
   const flowers = useMemo(
     () =>
       Array.from({ length: 160 }, (_, i) => {
@@ -659,12 +892,29 @@ function Landscape() {
   }, [flowers]);
   return (
     <>
-      <Box p={[0, -1.15, 0]} s={[72, 2, 78]} c="#a79c74" />
-      <Box p={[0, -0.25, 0]} s={[72, 0.6, 78]} c="#a8b780" />
+      <Box
+        p={[0, -1.15, 0]}
+        s={[72, 2, 78]}
+        c={observation ? "#354a3e" : "#a79c74"}
+      />
+      <Box
+        p={[0, -0.25, 0]}
+        s={[72, 0.6, 78]}
+        c={observation ? "#44614d" : "#a8b780"}
+      />
       {[-16, 0, 16].map((z) => (
-        <Box key={z} p={[0, 0.08, z]} s={[56, 0.12, 2.3]} c="#d8c9a5" />
+        <Box
+          key={z}
+          p={[0, 0.08, z]}
+          s={[56, 0.12, 2.3]}
+          c={observation ? "#58666b" : "#d8c9a5"}
+        />
       ))}
-      <Box p={[0, 0.09, 0]} s={[2.4, 0.13, 61]} c="#d8c9a5" />
+      <Box
+        p={[0, 0.09, 0]}
+        s={[2.4, 0.13, 61]}
+        c={observation ? "#58666b" : "#d8c9a5"}
+      />
       {buildings
         .filter((b) => b.kind !== "fountain")
         .map((b) => {
@@ -675,13 +925,13 @@ function Landscape() {
               key={b.id}
               p={[b.position[0], 0.07, (z + lane) / 2]}
               s={[1.7, 0.1, Math.abs(z - lane)]}
-              c="#d8c9a5"
+              c={observation ? "#58666b" : "#d8c9a5"}
             />
           );
         })}
       <mesh rotation-x={-Math.PI / 2} position={[0, 0.17, 1]}>
         <circleGeometry args={[5, 32]} />
-        {material("#d3c7a7")}
+        {material(observation ? "#677a75" : "#d3c7a7")}
       </mesh>
       {Array.from({ length: 26 }, (_, i) => (
         <Tree
@@ -786,17 +1036,23 @@ function Atmosphere() {
 function CameraRig() {
   const controls = useRef<OrbitControlsImpl>(null);
   const { camera } = useThree();
+  const observation = useTown((s) => s.observation);
   const reset = useTown((s) => s.cameraReset),
     following = useTown((s) => s.following),
     cinematic = useTown((s) => s.cinematic);
   const citizens = useTown((s) => s.world.citizens),
-    updatedAt = useTown((s) => s.world.updatedAt),
-    speed = useTown((s) => s.world.speed);
+    motionWorld = useTown((s) => s.world);
   useEffect(() => {
-    camera.position.set(56, 51, 63);
+    camera.position.set(
+      ...((observation ? [38, 29, 43] : [56, 51, 63]) as [
+        number,
+        number,
+        number,
+      ]),
+    );
     controls.current?.target.set(0, 0, 0);
     controls.current?.update();
-  }, [reset, camera]);
+  }, [reset, camera, observation]);
   const focusRemaining = useRef(0);
   useEffect(() => {
     focusRemaining.current = following ? 1.5 : 0;
@@ -807,10 +1063,7 @@ function CameraRig() {
       if (c) {
         const [x, z] = pointAlong(
           roadPath(c.previousPosition, c.position),
-          Math.min(
-            1,
-            Math.max(0, (Date.now() - Date.parse(updatedAt)) / (12000 / speed)),
-          ),
+          movementProgress(motionWorld),
         );
         const target = new THREE.Vector3(x, 1, z);
         const diff = target
@@ -820,7 +1073,13 @@ function CameraRig() {
         camera.position.add(diff);
         if (focusRemaining.current > 0) {
           camera.position.lerp(
-            target.clone().add(new THREE.Vector3(10, 9, 13)),
+            target
+              .clone()
+              .add(
+                observation
+                  ? new THREE.Vector3(6.5, 4.5, 8)
+                  : new THREE.Vector3(10, 9, 13),
+              ),
             1 - Math.exp(-delta * 3),
           );
           focusRemaining.current -= delta;
@@ -837,7 +1096,7 @@ function CameraRig() {
       enableDamping
       dampingFactor={0.08}
       maxPolarAngle={Math.PI / 2.25}
-      minDistance={12}
+      minDistance={7}
       maxDistance={135}
       autoRotate={cinematic}
       autoRotateSpeed={0.35}
@@ -890,6 +1149,7 @@ function ElectionCelebration() {
   ) : null;
 }
 function Scene() {
+  const observation = useTown((s) => s.observation);
   const [wave, setWave] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => setWave((w) => w + 1), 4000);
@@ -899,8 +1159,32 @@ function Scene() {
     night = useTown((s) => s.world.tick % 6 >= 4);
   return (
     <>
-      <color attach="background" args={[night ? "#9caeaa" : "#e6ebdc"]} />
-      <fog attach="fog" args={[night ? "#9caeaa" : "#e6ebdc", 110, 210]} />
+      <color
+        attach="background"
+        args={[
+          observation
+            ? night
+              ? "#14232c"
+              : "#2b4246"
+            : night
+              ? "#9caeaa"
+              : "#e6ebdc",
+        ]}
+      />
+      <fog
+        attach="fog"
+        args={[
+          observation
+            ? night
+              ? "#14232c"
+              : "#2b4246"
+            : night
+              ? "#9caeaa"
+              : "#e6ebdc",
+          110,
+          210,
+        ]}
+      />
       <ambientLight intensity={night ? 0.65 : 1.5} />
       <hemisphereLight args={["#eef3e0", "#788450", 1.1]} />
       <directionalLight
